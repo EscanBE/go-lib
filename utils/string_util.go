@@ -39,6 +39,7 @@ func RemoveEmptyString(source []string) []string {
 	return result
 }
 
+// ConditionalString returns string based on input expression
 func ConditionalString(expression bool, whenTrue, whenFalse string) string {
 	if expression {
 		return whenTrue
