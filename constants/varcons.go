@@ -5,7 +5,8 @@ import (
 	"syscall"
 )
 
-var TrapExitSignal = []os.Signal{
+// TrapExitSignals is a list of os signals should be listening for
+var TrapExitSignals = []os.Signal{
 	syscall.SIGTERM, // Terminate by another process
 	syscall.SIGHUP,  // Terminal goes away
 	syscall.SIGPIPE, // wrote to broken pipe/socket
