@@ -1,6 +1,9 @@
 package types
 
-import "fmt"
+import (
+	"fmt"
+	"github.com/EscanBE/go-lib/utils"
+)
 
 // PostgresDatabaseConfig holds configuration needed to connect to the postgres database
 type PostgresDatabaseConfig struct {
@@ -15,21 +18,25 @@ type PostgresDatabaseConfig struct {
 	MaxIdleConnectionCount int16  `mapstructure:"max-idle-connection-count"`
 }
 
+// Validate will return an error if any configuration problem
 func (c PostgresDatabaseConfig) Validate() error {
-	if len(c.Host) < 1 {
+	if utils.IsBlank(c.Host) {
 		return fmt.Errorf("missing database's host")
 	}
-	if c.Port < 1 {
+	if c.Port == 0 {
 		return fmt.Errorf("missing database's port")
 	}
-	if len(c.Username) < 1 {
+	if c.Port < 1 || c.Port > 65535 {
+		return fmt.Errorf("invalid database's port :%d", c.Port)
+	}
+	if utils.IsBlank(c.Username) {
 		return fmt.Errorf("missing database's username")
 	}
-	if len(c.Password) < 1 {
+	if utils.IsBlank(c.Password) {
 		return fmt.Errorf("missing database's password")
 	}
-	if len(c.Name) < 1 {
-		return fmt.Errorf("missing database name")
+	if utils.IsBlank(c.Name) {
+		return fmt.Errorf("missing database connect username")
 	}
 	if c.MaxOpenConnectionCount < 1 && c.MaxOpenConnectionCount != -1 {
 		return fmt.Errorf("invalid database's max-open-connection-count")
