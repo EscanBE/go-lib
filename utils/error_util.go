@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"fmt"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 )
@@ -10,7 +11,8 @@ func ExitIfErr(err error, msg string) {
 	if err == nil {
 		return
 	}
-	cobra.CheckErr(errors.Wrap(err, msg))
+	fmt.Printf("Exit with error: %s\n", msg)
+	cobra.CheckErr(err)
 }
 
 // NilOrWrapIfError returns wrapped input error and message. If the `err` is nil, this method also returns `nil`

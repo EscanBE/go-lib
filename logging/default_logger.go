@@ -71,6 +71,23 @@ func (d *defaultLogger) Error(msg string, keyVals ...interface{}) {
 	d.Logger.Error().Fields(getLogFields(keyVals...)).Msg(msg)
 }
 
+// ApplyConfig implements Logger
+func (d *defaultLogger) ApplyConfig(config logtypes.LoggingConfig) error {
+	if len(config.Level) > 0 {
+		err := d.SetLogLevel(config.Level)
+		if err != nil {
+			return err
+		}
+	}
+	if len(config.Format) > 0 {
+		err := d.SetLogFormat(config.Format)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func getLogFields(keyVals ...interface{}) map[string]interface{} {
 	if len(keyVals) < 1 || len(keyVals)%2 != 0 {
 		return nil

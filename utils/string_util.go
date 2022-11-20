@@ -52,3 +52,8 @@ func ConditionalString(expression bool, whenTrue, whenFalse string) string {
 func IsBlank(text string) bool {
 	return strings.TrimSpace(text) == ""
 }
+
+// IsTrimmable returns true if the trimmed version of the string is different with the original one
+func IsTrimmable(text string) bool {
+	return strings.TrimSpace(text) != text
+}
