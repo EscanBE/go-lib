@@ -10,11 +10,13 @@ import (
 	"time"
 )
 
+// TelegramBot wraps the bot and provide some utilities
 type TelegramBot struct {
 	bot    *tgbotapi.BotAPI
 	logger logging.Logger
 }
 
+// NewBot returns a new instance of TelegramBot, provide some utilities
 func NewBot(telegramBotToken string) (*TelegramBot, error) {
 	bot, err := tgbotapi.NewBotAPI(telegramBotToken)
 	if err != nil {
@@ -25,42 +27,51 @@ func NewBot(telegramBotToken string) (*TelegramBot, error) {
 	}, nil
 }
 
+// WithLogger injects a logger into TelegramBot, enable bot to be able to logging
 func (b *TelegramBot) WithLogger(logger logging.Logger) *TelegramBot {
 	b.logger = logger
 	return b
 }
 
+// EnableDebug enables debugging mode of bot
 func (b *TelegramBot) EnableDebug(enable bool) *TelegramBot {
 	b.bot.Debug = enable
 	return b
 }
 
+// StopReceivingUpdates stops the go routine which receives updates
 func (b *TelegramBot) StopReceivingUpdates() {
 	b.bot.StopReceivingUpdates()
 }
 
-func (b *TelegramBot) GetBotAPI() *tgbotapi.BotAPI {
+// ExposeBotAPI exposes the underlying tgbotapi.BotAPI instance
+func (b *TelegramBot) ExposeBotAPI() *tgbotapi.BotAPI {
 	return b.bot
 }
 
+// GetBotUsername returns username of the Telegram bot
 func (b *TelegramBot) GetBotUsername() string {
 	return b.bot.Self.UserName
 }
 
+// GetUpdatesChannel returns default tgbotapi.UpdatesChannel for the tgbotapi.BotAPI, timeout is 60, offset is 0
 func (b *TelegramBot) GetUpdatesChannel() tgbotapi.UpdatesChannel {
 	u := tgbotapi.NewUpdate(0)
 	u.Timeout = 60
 	return b.bot.GetUpdatesChan(u)
 }
 
+// Send delivers a chat
 func (b *TelegramBot) Send(chattable tgbotapi.Chattable) (tgbotapi.Message, error) {
 	return b.bot.Send(chattable)
 }
 
+// SendMessage delivers a message to destination chat id
 func (b *TelegramBot) SendMessage(msgContent string, chatId int64) (tgbotapi.Message, error) {
 	return b.Send(tgbotapi.NewMessage(chatId, msgContent))
 }
 
+// SendMessageToMultipleChats delivers a message to multiple chats
 func (b *TelegramBot) SendMessageToMultipleChats(msgContent string, chatIds []int64, perUserDuration *time.Duration, extraLogTags ...interface{}) error {
 	if len(msgContent) < 1 {
 		return fmt.Errorf("message content is empty")
@@ -68,6 +79,8 @@ func (b *TelegramBot) SendMessageToMultipleChats(msgContent string, chatIds []in
 	if len(chatIds) < 1 {
 		return fmt.Errorf("input chat ID list is empty")
 	}
+
+	chatIds = utils.GetUniqueElements(chatIds...)
 
 	cntSent := 0
 	errors := make(map[string]bool)
@@ -130,6 +143,15 @@ func (b *TelegramBot) SendMessageToMultipleChats(msgContent string, chatIds []in
 	}
 }
 
+// logDebug uses the supplied logger to perform logging at Debug level
+func (b *TelegramBot) logDebug(msg string, keyVals []interface{}) {
+	if b.logger == nil {
+		return
+	}
+	b.logger.Debug(msg, keyVals...)
+}
+
+// logInfo uses the supplied logger to perform logging at Info level
 func (b *TelegramBot) logInfo(msg string, keyVals []interface{}) {
 	if b.logger == nil {
 		return
@@ -137,6 +159,7 @@ func (b *TelegramBot) logInfo(msg string, keyVals []interface{}) {
 	b.logger.Info(msg, keyVals...)
 }
 
+// logError uses the supplied logger to perform logging at Error level
 func (b *TelegramBot) logError(msg string, keyVals []interface{}) {
 	if b.logger == nil {
 		return

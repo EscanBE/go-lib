@@ -105,6 +105,7 @@ func executeRemoteCommandViaSSH(remoteCommand string, remoteServer *types.SshRem
 	return b.String(), err
 }
 
+// IsPassphraseCanDecryptPrivateKey returns true if the provided passphrase can decrypt the encrypted privateKey
 func IsPassphraseCanDecryptPrivateKey(privateKey, passphrase []byte) (bool, error) {
 	_, err := ssh.ParsePrivateKeyWithPassphrase(privateKey, passphrase)
 	if err == nil {

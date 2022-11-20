@@ -20,9 +20,11 @@ type defaultLogger struct {
 
 // NewDefaultLogger builds a new defaultLogger instance
 func NewDefaultLogger() Logger {
-	return &defaultLogger{
+	result := &defaultLogger{
 		Logger: log.Logger,
 	}
+	result.SetLogLevel(logtypes.LOG_LEVEL_DEFAULT)
+	return result
 }
 
 // SetLogLevel implements Logger
