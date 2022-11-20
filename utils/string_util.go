@@ -47,3 +47,8 @@ func ConditionalString(expression bool, whenTrue, whenFalse string) string {
 		return whenFalse
 	}
 }
+
+// IsBlank returns true if the string is a blank string (not contains any character other than space and tab)
+func IsBlank(text string) bool {
+	return strings.TrimSpace(text) == ""
+}
