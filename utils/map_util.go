@@ -45,12 +45,29 @@ func SlideToTracker[K comparable](slice []K) map[K]bool {
 	return tracker
 }
 
+// SlideToMap converts the slice into a map[K]V with value as provided
+func SlideToMap[K comparable, V any](slice []K, value V) map[K]V {
+	tracker := make(map[K]V)
+	for _, ele := range slice {
+		tracker[ele] = value
+	}
+	return tracker
+}
+
+// PutToMapAsKeyBehavior defines behavior when put slice element to map
 type PutToMapAsKeyBehavior byte
 
 const (
-	RejectAllWhenAnyDuplicatedKey           PutToMapAsKeyBehavior = 1
-	SkipDuplicatedKeys                      PutToMapAsKeyBehavior = 2
-	AcceptAllAndOverrideDuplicatedKeys      PutToMapAsKeyBehavior = 3
+	// RejectAllWhenAnyDuplicatedKey means if any element of slice already exists on map, no key will be added
+	RejectAllWhenAnyDuplicatedKey PutToMapAsKeyBehavior = 1
+
+	// SkipDuplicatedKeys means all slice elements will be put into map as key, except elements which were already exists
+	SkipDuplicatedKeys PutToMapAsKeyBehavior = 2
+
+	// AcceptAllAndOverrideDuplicatedKeys means all slice elements will be put into map as key and the value will be overridden by provided default value
+	AcceptAllAndOverrideDuplicatedKeys PutToMapAsKeyBehavior = 3
+
+	// AcceptOnlyDuplicatedKeysAndOverrideThem means will take only slice elements which were already exists, and override their value with provided default value. While remaining elements (not exists on map) will be skipped
 	AcceptOnlyDuplicatedKeysAndOverrideThem PutToMapAsKeyBehavior = 4
 )
 

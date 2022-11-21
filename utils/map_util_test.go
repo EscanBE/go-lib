@@ -225,6 +225,37 @@ func TestSlideToTracker(t *testing.T) {
 	}
 }
 
+func TestSlideToMap(t *testing.T) {
+	tests := []struct {
+		slice []int
+		want  map[int]bool
+	}{
+		{
+			slice: nil,
+			want:  map[int]bool{},
+		},
+		{
+			slice: []int{},
+			want:  map[int]bool{},
+		},
+		{
+			slice: []int{1},
+			want:  map[int]bool{1: true},
+		},
+		{
+			slice: []int{1, 2, 3},
+			want:  map[int]bool{1: true, 2: true, 3: true},
+		},
+	}
+	for _, tt := range tests {
+		t.Run("", func(t *testing.T) {
+			if got := SlideToMap(tt.slice, true); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("SlideToMap() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
 func TestPutToMapAsKeys(t *testing.T) {
 	tests := []struct {
 		name         string
@@ -318,10 +349,10 @@ func TestPutToMapAsKeys(t *testing.T) {
 			err := PutToMapAsKeys(tt.tracker, tt.slice, tt.defaultValue, tt.behavior)
 			gotErr := err != nil
 			if gotErr != tt.wantErr {
-				t.Errorf("SlideToTracker() = %t, want %t", gotErr, tt.wantErr)
+				t.Errorf("PutToMapAsKeys() = %t, want %t", gotErr, tt.wantErr)
 			}
 			if !reflect.DeepEqual(tt.tracker, tt.want) {
-				t.Errorf("SlideToTracker() map %v, want %v", tt.tracker, tt.want)
+				t.Errorf("PutToMapAsKeys() map %v, want %v", tt.tracker, tt.want)
 			}
 		})
 	}
