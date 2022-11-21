@@ -193,3 +193,34 @@ func TestSoftCloneMap(t *testing.T) {
 		})
 	}
 }
+
+func TestSlideToTracker(t *testing.T) {
+	tests := []struct {
+		slice []int
+		want  map[int]bool
+	}{
+		{
+			slice: nil,
+			want:  map[int]bool{},
+		},
+		{
+			slice: []int{},
+			want:  map[int]bool{},
+		},
+		{
+			slice: []int{1},
+			want:  map[int]bool{1: true},
+		},
+		{
+			slice: []int{1, 2, 3},
+			want:  map[int]bool{1: true, 2: true, 3: true},
+		},
+	}
+	for _, tt := range tests {
+		t.Run("", func(t *testing.T) {
+			if got := SlideToTracker(tt.slice); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("SlideToTracker() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
