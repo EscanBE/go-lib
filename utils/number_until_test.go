@@ -123,11 +123,13 @@ func TestInt64ToString(t *testing.T) {
 		args int64
 		want string
 	}{
+		{args: -1_000_000, want: "-1000000"},
 		{args: -999, want: "-999"},
 		{args: -99, want: "-99"},
 		{args: 0, want: "0"},
 		{args: 99, want: "99"},
 		{args: 999, want: "999"},
+		{args: 1_000_000, want: "1000000"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.want, func(t *testing.T) {
@@ -139,19 +141,22 @@ func TestInt64ToString(t *testing.T) {
 }
 
 func TestIntToString(t *testing.T) {
-	type args struct {
-		number int
-	}
 	tests := []struct {
 		name string
-		args args
+		args int
 		want string
 	}{
-		// TODO: Add test cases.
+		{args: -1_000_000, want: "-1000000"},
+		{args: -999, want: "-999"},
+		{args: -99, want: "-99"},
+		{args: 0, want: "0"},
+		{args: 99, want: "99"},
+		{args: 999, want: "999"},
+		{args: 1_000_000, want: "1000000"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := IntToString(tt.args.number); got != tt.want {
+			if got := IntToString(tt.args); got != tt.want {
 				t.Errorf("IntToString() = %v, want %v", got, tt.want)
 			}
 		})
@@ -168,7 +173,27 @@ func TestMaxInt(t *testing.T) {
 		args args
 		want int
 	}{
-		// TODO: Add test cases.
+		{
+			args: args{
+				n1: 1,
+				n2: 2,
+			},
+			want: 2,
+		},
+		{
+			args: args{
+				n1: -9999,
+				n2: 2,
+			},
+			want: 2,
+		},
+		{
+			args: args{
+				n1: 3,
+				n2: -9999,
+			},
+			want: 3,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -189,12 +214,114 @@ func TestMaxInt64(t *testing.T) {
 		args args
 		want int64
 	}{
-		// TODO: Add test cases.
+		{
+			args: args{
+				n1: 1,
+				n2: 2,
+			},
+			want: 2,
+		},
+		{
+			args: args{
+				n1: -9999,
+				n2: 2,
+			},
+			want: 2,
+		},
+		{
+			args: args{
+				n1: 3,
+				n2: -9999,
+			},
+			want: 3,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := MaxInt64(tt.args.n1, tt.args.n2); got != tt.want {
 				t.Errorf("MaxInt64() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestMinInt(t *testing.T) {
+	type args struct {
+		n1 int
+		n2 int
+	}
+	tests := []struct {
+		name string
+		args args
+		want int
+	}{
+		{
+			args: args{
+				n1: 1,
+				n2: 2,
+			},
+			want: 1,
+		},
+		{
+			args: args{
+				n1: -2,
+				n2: 9999,
+			},
+			want: -2,
+		},
+		{
+			args: args{
+				n1: 9999,
+				n2: -3,
+			},
+			want: -3,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := MinInt(tt.args.n1, tt.args.n2); got != tt.want {
+				t.Errorf("MinInt() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestMinInt64(t *testing.T) {
+	type args struct {
+		n1 int64
+		n2 int64
+	}
+	tests := []struct {
+		name string
+		args args
+		want int64
+	}{
+		{
+			args: args{
+				n1: 1,
+				n2: 2,
+			},
+			want: 1,
+		},
+		{
+			args: args{
+				n1: -2,
+				n2: 9999,
+			},
+			want: -2,
+		},
+		{
+			args: args{
+				n1: 9999,
+				n2: -3,
+			},
+			want: -3,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := MinInt64(tt.args.n1, tt.args.n2); got != tt.want {
+				t.Errorf("MinInt64() = %v, want %v", got, tt.want)
 			}
 		})
 	}

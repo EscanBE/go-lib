@@ -145,7 +145,10 @@ func TestGetKeysOfTrue(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := GetKeysOfTrue(tt.args.myMap); !reflect.DeepEqual(got, tt.want) {
+			got := GetKeysOfTrue(tt.args.myMap)
+			sort.Ints(got)
+			sort.Ints(tt.want)
+			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("GetKeysOfTrue() = %v, want %v", got, tt.want)
 			}
 		})

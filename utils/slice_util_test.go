@@ -3,6 +3,7 @@ package utils
 import (
 	"math/rand"
 	"reflect"
+	"sort"
 	"testing"
 )
 
@@ -98,6 +99,40 @@ func TestPaging(t *testing.T) {
 			}
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("Paging() got = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestGetUniqueElements(t *testing.T) {
+	tests := []struct {
+		slice []int
+		want  []int
+	}{
+		{
+			slice: []int{},
+			want:  []int{},
+		},
+		{
+			slice: []int{1},
+			want:  []int{1},
+		},
+		{
+			slice: []int{1, 2, 3},
+			want:  []int{1, 2, 3},
+		},
+		{
+			slice: []int{1, 2, 3, 2, 3, 2, 3, 4},
+			want:  []int{1, 2, 3, 4},
+		},
+	}
+	for _, tt := range tests {
+		t.Run("", func(t *testing.T) {
+			got := GetUniqueElements(tt.slice...)
+			sort.Ints(got)
+			sort.Ints(tt.want)
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("GetUniqueElements() = %v, want %v", got, tt.want)
 			}
 		})
 	}

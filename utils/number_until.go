@@ -24,6 +24,22 @@ func MaxInt(n1, n2 int) int {
 	return n2
 }
 
+// MinInt64 returns the lower int64
+func MinInt64(n1, n2 int64) int64 {
+	if n1 < n2 {
+		return n1
+	}
+	return n2
+}
+
+// MinInt returns the lower int32
+func MinInt(n1, n2 int) int {
+	if n1 < n2 {
+		return n1
+	}
+	return n2
+}
+
 // AbsInt64 returns the Absolute value of the input int64
 func AbsInt64(n int64) int64 {
 	return int64(math.Abs(float64(n)))

@@ -53,7 +53,8 @@ func IsTrimmable(text string) bool {
 	return strings.TrimSpace(text) != text
 }
 
-// FirstNonEmptyString returns the first string which does not empty
+// FirstNonEmptyString returns the first string which does not empty.
+// WARNING: " ", "\t" are not empty string
 func FirstNonEmptyString(candidates ...string) (string, error) {
 	for _, str := range candidates {
 		if len(str) > 0 {
