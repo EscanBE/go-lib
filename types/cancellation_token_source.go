@@ -1,7 +1,6 @@
 package types
 
 import (
-	"math"
 	"time"
 )
 
@@ -41,7 +40,7 @@ func NewCancellationTokenSourceWithExpiry(expiry *time.Time) *CancellationTokenS
 // NewCancellationTokenSource returns an instance of CancellationTokenSource
 // which returns always return false when ask for IsExpired, but you can cancel it by calling RequestCancellation
 func NewCancellationTokenSource() *CancellationTokenSource {
-	expiry := time.Unix(math.MaxInt64, 0)
+	expiry := time.Date(9999, time.September, 9, 9, 9, 9, 9999, time.UTC)
 	return NewCancellationTokenSourceWithExpiry(&expiry)
 }
 

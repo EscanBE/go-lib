@@ -10,6 +10,7 @@ require (
 	github.com/rs/zerolog v1.27.0
 	github.com/spf13/cobra v1.6.1
 	golang.org/x/crypto v0.3.0
+	golang.org/x/net v0.2.0
 	golang.org/x/text v0.4.0
 )
 

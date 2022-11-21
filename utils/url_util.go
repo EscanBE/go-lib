@@ -8,12 +8,20 @@ import (
 )
 
 // ExtractHostAndPort return the host name (domain) with port number from input uri
-func ExtractHostAndPort(url string) (string, error) {
-	host, err := neturl.Parse(url)
+func ExtractHostAndPort(rawUrl string) (string, error) {
+	url, err := neturl.Parse(rawUrl)
 	if err != nil {
 		return "", err
 	}
-	return fmt.Sprintf("%s:%s", strings.TrimPrefix(host.Hostname(), "www."), host.Port()), nil
+	host := strings.TrimPrefix(url.Hostname(), "www.")
+	port := url.Port()
+	if IsBlank(host) {
+		return "", fmt.Errorf("unable to extract host")
+	}
+	if IsBlank(port) {
+		return host, nil
+	}
+	return fmt.Sprintf("%s:%s", host, port), nil
 }
 
 // ExtractHostAndPortOrKeep return the host name (domain) with port number from input uri. Return original input url if failed to parse

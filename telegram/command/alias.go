@@ -16,11 +16,11 @@ func registerCommandAlias(command string, alias string) {
 	if !commandRegex.MatchString(alias) {
 		panic(fmt.Errorf("alias [%s] format is not well-formed", alias))
 	}
+	if alias == command {
+		panic(fmt.Errorf("can not register [%s] as alias for itself", command))
+	}
 	if registeredCommands.Has(alias) {
 		panic(fmt.Errorf("[%s] had been registered as a command thus can not be an alias", alias))
-	}
-	if alias == command {
-		panic(fmt.Errorf("can not register [%s] as alias for [%s]", alias, command))
 	}
 	if mappedCommand, found := registeredAliases.Get(alias); found {
 		if mappedCommand != command {

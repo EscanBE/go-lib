@@ -1,14 +1,9 @@
 package utils
 
 import (
-	"strconv"
+	"fmt"
 	"strings"
 )
-
-// Int64ToString converts the input int64 into a string
-func Int64ToString(number int64) string {
-	return strconv.FormatInt(number, 10)
-}
 
 // AnyOf returns true if the `inAny` set contains the input `source`
 func AnyOf(source string, inAny ...string) bool {
@@ -56,4 +51,27 @@ func IsBlank(text string) bool {
 // IsTrimmable returns true if the trimmed version of the string is different with the original one
 func IsTrimmable(text string) bool {
 	return strings.TrimSpace(text) != text
+}
+
+// FirstNonEmptyString returns the first string which does not empty.
+// WARNING: " ", "\t" are not empty string
+func FirstNonEmptyString(candidates ...string) (string, error) {
+	for _, str := range candidates {
+		if len(str) > 0 {
+			return str, nil
+		}
+	}
+
+	return "", fmt.Errorf("not any non-empty string")
+}
+
+// FirstNonBlankString returns the first string which does not blank
+func FirstNonBlankString(candidates ...string) (string, error) {
+	for _, str := range candidates {
+		if !IsBlank(str) {
+			return str, nil
+		}
+	}
+
+	return "", fmt.Errorf("not any non-blank string")
 }

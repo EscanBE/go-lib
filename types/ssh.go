@@ -2,8 +2,10 @@ package types
 
 import (
 	"fmt"
+	"github.com/EscanBE/go-lib/validation"
 	"net"
 	"reflect"
+	"strconv"
 )
 
 // === SshRemoteServer
@@ -18,6 +20,26 @@ type SshRemote struct {
 
 // NewSshRemoteEndpoint returns a SshRemote instance with endpoint info and supplied auth type if any
 func NewSshRemoteEndpoint(host, port, username string, authType interface{}) (*SshRemote, error) {
+	if len(host) < 1 {
+		return nil, fmt.Errorf("host is blank")
+	}
+
+	if len(port) < 1 {
+		port = "22"
+	} else {
+		portNo, err := strconv.ParseInt(port, 10, 32)
+		if err != nil {
+			return nil, fmt.Errorf("invalid port number [%s]: unable to parse", port)
+		}
+		if !validation.IsValidPort(int(portNo)) {
+			return nil, fmt.Errorf("invalid port number [%s]: out of range", port)
+		}
+	}
+
+	if len(username) < 1 {
+		return nil, fmt.Errorf("username is blank")
+	}
+
 	if authType == nil {
 		return nil, fmt.Errorf("at least one authentication type is required")
 	}
@@ -44,6 +66,9 @@ func (sr *SshRemote) WithAuthByPrivateKey(authPk SshAuthPrivateKey) {
 
 // GetEndpoint returns endpoint as combined of host and port
 func (sr *SshRemote) GetEndpoint() string {
+	if len(sr.Port) < 1 {
+		return sr.Host
+	}
 	return net.JoinHostPort(sr.Host, sr.Port)
 }
 
