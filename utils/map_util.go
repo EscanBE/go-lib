@@ -1,5 +1,7 @@
 package utils
 
+import "fmt"
+
 // GetKeys returns keys of map as a slice
 func GetKeys[K comparable, V any](myMap map[K]V) []K {
 	keys := make([]K, 0)
@@ -41,4 +43,57 @@ func SlideToTracker[K comparable](slice []K) map[K]bool {
 		tracker[ele] = true
 	}
 	return tracker
+}
+
+type AddSliceToTrackerBehavior byte
+
+const (
+	RejectAllWhenAnyDuplicatedKey           AddSliceToTrackerBehavior = 1
+	SkipDuplicatedKeys                      AddSliceToTrackerBehavior = 2
+	AcceptAllAndOverrideDuplicatedKeys      AddSliceToTrackerBehavior = 3
+	AcceptOnlyDuplicatedKeysAndOverrideThem AddSliceToTrackerBehavior = 4
+)
+
+// AddSliceToTracker puts all elements from slice into the map, with map value is `true`.
+func AddSliceToTracker[K comparable](tracker map[K]bool, slice []K, defaultValue bool, behavior AddSliceToTrackerBehavior) error {
+	if tracker == nil {
+		return fmt.Errorf("tracker is nil")
+	}
+	if len(slice) < 1 {
+		return nil
+	}
+	switch behavior {
+	case RejectAllWhenAnyDuplicatedKey:
+		for _, k := range slice {
+			if _, exists := tracker[k]; exists {
+				return fmt.Errorf("duplicated key %v, rejected all", k)
+			}
+		}
+		for _, k := range slice {
+			tracker[k] = defaultValue
+		}
+		return nil
+	case SkipDuplicatedKeys:
+		for _, k := range slice {
+			if _, exists := tracker[k]; exists {
+				continue
+			}
+			tracker[k] = defaultValue
+		}
+		return nil
+	case AcceptAllAndOverrideDuplicatedKeys:
+		for _, k := range slice {
+			tracker[k] = defaultValue
+		}
+		return nil
+	case AcceptOnlyDuplicatedKeysAndOverrideThem:
+		for _, k := range slice {
+			if _, exists := tracker[k]; exists {
+				tracker[k] = defaultValue
+			}
+		}
+		return nil
+	default:
+		return fmt.Errorf("not supported behavior %v", behavior)
+	}
 }
