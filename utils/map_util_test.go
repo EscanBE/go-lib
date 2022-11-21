@@ -225,13 +225,13 @@ func TestSlideToTracker(t *testing.T) {
 	}
 }
 
-func TestAddSliceToTracker(t *testing.T) {
+func TestPutToMapAsKeys(t *testing.T) {
 	tests := []struct {
 		name         string
 		tracker      map[int]bool
 		slice        []int
 		defaultValue bool
-		behavior     AddSliceToTrackerBehavior
+		behavior     PutToMapAsKeyBehavior
 		want         map[int]bool
 		wantErr      bool
 	}{
@@ -303,7 +303,7 @@ func TestAddSliceToTracker(t *testing.T) {
 			tracker:      map[int]bool{1: false},
 			slice:        []int{1, 2},
 			defaultValue: true,
-			behavior:     AddSliceToTrackerBehavior(99),
+			behavior:     PutToMapAsKeyBehavior(99),
 			want:         map[int]bool{1: false},
 			wantErr:      true,
 		},
@@ -315,7 +315,7 @@ func TestAddSliceToTracker(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			err := AddSliceToTracker(tt.tracker, tt.slice, tt.defaultValue, tt.behavior)
+			err := PutToMapAsKeys(tt.tracker, tt.slice, tt.defaultValue, tt.behavior)
 			gotErr := err != nil
 			if gotErr != tt.wantErr {
 				t.Errorf("SlideToTracker() = %t, want %t", gotErr, tt.wantErr)

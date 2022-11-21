@@ -45,19 +45,19 @@ func SlideToTracker[K comparable](slice []K) map[K]bool {
 	return tracker
 }
 
-type AddSliceToTrackerBehavior byte
+type PutToMapAsKeyBehavior byte
 
 const (
-	RejectAllWhenAnyDuplicatedKey           AddSliceToTrackerBehavior = 1
-	SkipDuplicatedKeys                      AddSliceToTrackerBehavior = 2
-	AcceptAllAndOverrideDuplicatedKeys      AddSliceToTrackerBehavior = 3
-	AcceptOnlyDuplicatedKeysAndOverrideThem AddSliceToTrackerBehavior = 4
+	RejectAllWhenAnyDuplicatedKey           PutToMapAsKeyBehavior = 1
+	SkipDuplicatedKeys                      PutToMapAsKeyBehavior = 2
+	AcceptAllAndOverrideDuplicatedKeys      PutToMapAsKeyBehavior = 3
+	AcceptOnlyDuplicatedKeysAndOverrideThem PutToMapAsKeyBehavior = 4
 )
 
-// AddSliceToTracker puts all elements from slice into the map, with map value is `true`.
-func AddSliceToTracker[K comparable](tracker map[K]bool, slice []K, defaultValue bool, behavior AddSliceToTrackerBehavior) error {
-	if tracker == nil {
-		return fmt.Errorf("tracker is nil")
+// PutToMapAsKeys puts all elements from slice into the map
+func PutToMapAsKeys[K comparable, V any](_map map[K]V, slice []K, defaultValue V, behavior PutToMapAsKeyBehavior) error {
+	if _map == nil {
+		return fmt.Errorf("map is nil")
 	}
 	if len(slice) < 1 {
 		return nil
@@ -65,31 +65,31 @@ func AddSliceToTracker[K comparable](tracker map[K]bool, slice []K, defaultValue
 	switch behavior {
 	case RejectAllWhenAnyDuplicatedKey:
 		for _, k := range slice {
-			if _, exists := tracker[k]; exists {
+			if _, exists := _map[k]; exists {
 				return fmt.Errorf("duplicated key %v, rejected all", k)
 			}
 		}
 		for _, k := range slice {
-			tracker[k] = defaultValue
+			_map[k] = defaultValue
 		}
 		return nil
 	case SkipDuplicatedKeys:
 		for _, k := range slice {
-			if _, exists := tracker[k]; exists {
+			if _, exists := _map[k]; exists {
 				continue
 			}
-			tracker[k] = defaultValue
+			_map[k] = defaultValue
 		}
 		return nil
 	case AcceptAllAndOverrideDuplicatedKeys:
 		for _, k := range slice {
-			tracker[k] = defaultValue
+			_map[k] = defaultValue
 		}
 		return nil
 	case AcceptOnlyDuplicatedKeysAndOverrideThem:
 		for _, k := range slice {
-			if _, exists := tracker[k]; exists {
-				tracker[k] = defaultValue
+			if _, exists := _map[k]; exists {
+				_map[k] = defaultValue
 			}
 		}
 		return nil
