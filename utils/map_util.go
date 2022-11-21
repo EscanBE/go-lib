@@ -38,11 +38,7 @@ func SoftCloneMap[K comparable, V any](myMap map[K]V) map[K]V {
 
 // SlideToTracker converts the slice into a map[K]bool with all values are `true`
 func SlideToTracker[K comparable](slice []K) map[K]bool {
-	tracker := make(map[K]bool)
-	for _, ele := range slice {
-		tracker[ele] = true
-	}
-	return tracker
+	return SlideToMap(slice, true)
 }
 
 // SlideToMap converts the slice into a map[K]V with value as provided
