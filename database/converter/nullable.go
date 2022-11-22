@@ -9,8 +9,8 @@ import (
 )
 
 // JsonAsSqlNullableString do transform an object into a string that nullable in the underlying database
-func JsonAsSqlNullableString(v interface{}, len int) (sql.NullString, error) {
-	if v == nil || len < 1 {
+func JsonAsSqlNullableString(v any, sureEmpty bool) (sql.NullString, error) {
+	if v == nil || sureEmpty {
 		return sql.NullString{}, nil
 	}
 	bz, err := json.Marshal(v)
@@ -44,12 +44,9 @@ func StringAsSqlNullableString(s string, removeInvalidUtf8 bool) sql.NullString 
 
 // BooleanAsSqlNullableBoolean do transform a boolean into a boolean object that nullable in the underlying database, if the boolean value is FALSE, it will be NULL
 func BooleanAsSqlNullableBoolean(b bool) sql.NullBool {
-	if !b {
-		return sql.NullBool{}
-	}
 	return sql.NullBool{
-		Bool:  true,
-		Valid: true,
+		Bool:  b,
+		Valid: b,
 	}
 }
 

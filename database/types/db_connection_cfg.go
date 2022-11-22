@@ -26,9 +26,6 @@ func (c PostgresDatabaseConfig) Validate() error {
 	if c.Port == 0 {
 		return fmt.Errorf("missing database port")
 	}
-	if c.Port < 1 || c.Port > 65535 {
-		return fmt.Errorf("invalid database port :%d", c.Port)
-	}
 	if utils.IsBlank(c.Username) {
 		return fmt.Errorf("missing database username")
 	}
