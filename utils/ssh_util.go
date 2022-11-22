@@ -12,6 +12,9 @@ import (
 // ExecuteRemoteCommandViaSSH performs execution of remote command on target server,
 // it returns the output string of the execution and an error if any
 func ExecuteRemoteCommandViaSSH(remoteCommand string, remoteServer *types.SshRemote) (string, error) {
+	if remoteServer == nil {
+		panic("remote server is required")
+	}
 	if remoteServer.IsAuthByPrivateKey() {
 		return executeRemoteCommandViaSSHUsingPrivateKey(remoteCommand, remoteServer)
 	}
