@@ -36,13 +36,13 @@ func SoftCloneMap[K comparable, V any](myMap map[K]V) map[K]V {
 	return result
 }
 
-// SlideToTracker converts the slice into a map[K]bool with all values are `true`
-func SlideToTracker[K comparable](slice []K) map[K]bool {
-	return SlideToMap(slice, true)
+// SliceToTracker converts the slice into a map[K]bool with all values are `true`
+func SliceToTracker[K comparable](slice []K) map[K]bool {
+	return SliceToMap(slice, true)
 }
 
-// SlideToMap converts the slice into a map[K]V with value as provided
-func SlideToMap[K comparable, V any](slice []K, value V) map[K]V {
+// SliceToMap converts the slice into a map[K]V with value as provided
+func SliceToMap[K comparable, V any](slice []K, value V) map[K]V {
 	tracker := make(map[K]V)
 	for _, ele := range slice {
 		tracker[ele] = value
@@ -67,25 +67,32 @@ const (
 	AcceptOnlyDuplicatedKeysAndOverrideThem PutToMapAsKeyBehavior = 4
 )
 
-// PutToMapAsKeys puts all elements from slice into the map
-func PutToMapAsKeys[K comparable, V any](_map map[K]V, slice []K, defaultValue V, behavior PutToMapAsKeyBehavior) error {
+// PutAllToMapAsKeys puts all elements from slice into the map, override duplicated elements
+func PutAllToMapAsKeys[K comparable, V any](_map map[K]V, slice []K, defaultValue V) map[K]V {
+	res, err := PutToMapAsKeys(_map, slice, defaultValue, AcceptAllAndOverrideDuplicatedKeys)
+	PanicIfErr(err, "should never happens")
+	return res
+}
+
+// PutToMapAsKeys puts elements from slice into the map
+func PutToMapAsKeys[K comparable, V any](_map map[K]V, slice []K, defaultValue V, behavior PutToMapAsKeyBehavior) (map[K]V, error) {
 	if _map == nil {
-		return fmt.Errorf("map is nil")
+		_map = make(map[K]V)
 	}
 	if len(slice) < 1 {
-		return nil
+		return _map, nil
 	}
 	switch behavior {
 	case RejectAllWhenAnyDuplicatedKey:
 		for _, k := range slice {
 			if _, exists := _map[k]; exists {
-				return fmt.Errorf("duplicated key %v, rejected all", k)
+				return _map, fmt.Errorf("duplicated key %v, rejected all", k)
 			}
 		}
 		for _, k := range slice {
 			_map[k] = defaultValue
 		}
-		return nil
+		return _map, nil
 	case SkipDuplicatedKeys:
 		for _, k := range slice {
 			if _, exists := _map[k]; exists {
@@ -93,20 +100,20 @@ func PutToMapAsKeys[K comparable, V any](_map map[K]V, slice []K, defaultValue V
 			}
 			_map[k] = defaultValue
 		}
-		return nil
+		return _map, nil
 	case AcceptAllAndOverrideDuplicatedKeys:
 		for _, k := range slice {
 			_map[k] = defaultValue
 		}
-		return nil
+		return _map, nil
 	case AcceptOnlyDuplicatedKeysAndOverrideThem:
 		for _, k := range slice {
 			if _, exists := _map[k]; exists {
 				_map[k] = defaultValue
 			}
 		}
-		return nil
+		return _map, nil
 	default:
-		return fmt.Errorf("not supported behavior %v", behavior)
+		return _map, fmt.Errorf("not supported behavior %v", behavior)
 	}
 }
