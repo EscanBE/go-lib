@@ -194,7 +194,7 @@ func TestSoftCloneMap(t *testing.T) {
 	}
 }
 
-func TestSlideToTracker(t *testing.T) {
+func TestSliceToTracker(t *testing.T) {
 	tests := []struct {
 		slice []int
 		want  map[int]bool
@@ -218,16 +218,17 @@ func TestSlideToTracker(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run("", func(t *testing.T) {
-			if got := SlideToTracker(tt.slice); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("SlideToTracker() = %v, want %v", got, tt.want)
+			if got := SliceToTracker(tt.slice); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("SliceToTracker() = %v, want %v", got, tt.want)
 			}
 		})
 	}
 }
 
-func TestSlideToMap(t *testing.T) {
+func TestSliceToMap(t *testing.T) {
 	tests := []struct {
 		slice []int
+		value bool
 		want  map[int]bool
 	}{
 		{
@@ -240,17 +241,29 @@ func TestSlideToMap(t *testing.T) {
 		},
 		{
 			slice: []int{1},
+			value: true,
 			want:  map[int]bool{1: true},
 		},
 		{
+			slice: []int{1},
+			value: false,
+			want:  map[int]bool{1: false},
+		},
+		{
 			slice: []int{1, 2, 3},
+			value: true,
 			want:  map[int]bool{1: true, 2: true, 3: true},
+		},
+		{
+			slice: []int{1, 2, 3},
+			value: false,
+			want:  map[int]bool{1: false, 2: false, 3: false},
 		},
 	}
 	for _, tt := range tests {
 		t.Run("", func(t *testing.T) {
-			if got := SlideToMap(tt.slice, true); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("SlideToMap() = %v, want %v", got, tt.want)
+			if got := SliceToMap(tt.slice, tt.value); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("SliceToMap() = %v, want %v", got, tt.want)
 			}
 		})
 	}
@@ -259,7 +272,7 @@ func TestSlideToMap(t *testing.T) {
 func TestPutToMapAsKeys(t *testing.T) {
 	tests := []struct {
 		name         string
-		tracker      map[int]bool
+		_map         map[int]bool
 		slice        []int
 		defaultValue bool
 		behavior     PutToMapAsKeyBehavior
@@ -267,14 +280,14 @@ func TestPutToMapAsKeys(t *testing.T) {
 		wantErr      bool
 	}{
 		{
-			name:    "empty slice",
-			tracker: map[int]bool{1: false},
-			slice:   []int{},
-			want:    map[int]bool{1: false},
+			name:  "empty slice",
+			_map:  map[int]bool{1: false},
+			slice: []int{},
+			want:  map[int]bool{1: false},
 		},
 		{
 			name:         "RejectAllWhenAnyDuplicatedKey(1)",
-			tracker:      map[int]bool{1: false},
+			_map:         map[int]bool{1: false},
 			slice:        []int{2},
 			defaultValue: true,
 			behavior:     RejectAllWhenAnyDuplicatedKey,
@@ -282,7 +295,7 @@ func TestPutToMapAsKeys(t *testing.T) {
 		},
 		{
 			name:         "RejectAllWhenAnyDuplicatedKey(2)",
-			tracker:      map[int]bool{1: false, 2: false},
+			_map:         map[int]bool{1: false, 2: false},
 			slice:        []int{2, 3},
 			defaultValue: true,
 			behavior:     RejectAllWhenAnyDuplicatedKey,
@@ -291,7 +304,7 @@ func TestPutToMapAsKeys(t *testing.T) {
 		},
 		{
 			name:         "SkipDuplicatedKeys(1)",
-			tracker:      map[int]bool{1: false, 2: false},
+			_map:         map[int]bool{1: false, 2: false},
 			slice:        []int{2, 3},
 			defaultValue: true,
 			behavior:     SkipDuplicatedKeys,
@@ -299,7 +312,7 @@ func TestPutToMapAsKeys(t *testing.T) {
 		},
 		{
 			name:         "SkipDuplicatedKeys(2)",
-			tracker:      map[int]bool{1: false, 2: false},
+			_map:         map[int]bool{1: false, 2: false},
 			slice:        []int{3, 4},
 			defaultValue: true,
 			behavior:     SkipDuplicatedKeys,
@@ -307,7 +320,7 @@ func TestPutToMapAsKeys(t *testing.T) {
 		},
 		{
 			name:         "AcceptAllAndOverrideDuplicatedKeys(1)",
-			tracker:      map[int]bool{1: false},
+			_map:         map[int]bool{1: false},
 			slice:        []int{1, 2},
 			defaultValue: true,
 			behavior:     AcceptAllAndOverrideDuplicatedKeys,
@@ -315,7 +328,7 @@ func TestPutToMapAsKeys(t *testing.T) {
 		},
 		{
 			name:         "AcceptAllAndOverrideDuplicatedKeys(2)",
-			tracker:      map[int]bool{1: false},
+			_map:         map[int]bool{1: false},
 			slice:        []int{2, 3},
 			defaultValue: true,
 			behavior:     AcceptAllAndOverrideDuplicatedKeys,
@@ -323,7 +336,7 @@ func TestPutToMapAsKeys(t *testing.T) {
 		},
 		{
 			name:         "AcceptOnlyDuplicatedKeysAndOverrideThem(1)",
-			tracker:      map[int]bool{1: false, 2: true, 4: false},
+			_map:         map[int]bool{1: false, 2: true, 4: false},
 			slice:        []int{1, 2, 3},
 			defaultValue: true,
 			behavior:     AcceptOnlyDuplicatedKeysAndOverrideThem,
@@ -331,7 +344,7 @@ func TestPutToMapAsKeys(t *testing.T) {
 		},
 		{
 			name:         "not supported behavior",
-			tracker:      map[int]bool{1: false},
+			_map:         map[int]bool{1: false},
 			slice:        []int{1, 2},
 			defaultValue: true,
 			behavior:     PutToMapAsKeyBehavior(99),
@@ -339,20 +352,73 @@ func TestPutToMapAsKeys(t *testing.T) {
 			wantErr:      true,
 		},
 		{
-			name:    "tracker can not be nil",
-			tracker: nil,
-			wantErr: true,
+			name:     "map will be initialized if nil",
+			_map:     nil,
+			behavior: SkipDuplicatedKeys,
+			want:     map[int]bool{},
+		},
+		{
+			name:         "map will be initialized if nil",
+			_map:         nil,
+			slice:        []int{1, 2},
+			defaultValue: true,
+			behavior:     SkipDuplicatedKeys,
+			want:         map[int]bool{1: true, 2: true},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			err := PutToMapAsKeys(tt.tracker, tt.slice, tt.defaultValue, tt.behavior)
+			res, err := PutToMapAsKeys(tt._map, tt.slice, tt.defaultValue, tt.behavior)
 			gotErr := err != nil
 			if gotErr != tt.wantErr {
 				t.Errorf("PutToMapAsKeys() = %t, want %t", gotErr, tt.wantErr)
 			}
-			if !reflect.DeepEqual(tt.tracker, tt.want) {
-				t.Errorf("PutToMapAsKeys() map %v, want %v", tt.tracker, tt.want)
+			if !reflect.DeepEqual(res, tt.want) {
+				t.Errorf("PutToMapAsKeys() map %v, want %v", res, tt.want)
+			}
+		})
+	}
+}
+
+func TestPutAllToMapAsKeys(t *testing.T) {
+	tests := []struct {
+		name         string
+		_map         map[int]bool
+		slice        []int
+		defaultValue bool
+		want         map[int]bool
+	}{
+		{
+			name:         "map will be initialized if nil",
+			_map:         nil,
+			defaultValue: true,
+			want:         map[int]bool{},
+		},
+		{
+			name:         "map will be initialized if nil",
+			_map:         nil,
+			slice:        []int{1, 2},
+			defaultValue: true,
+			want:         map[int]bool{1: true, 2: true},
+		},
+		{
+			name:  "empty slice",
+			_map:  map[int]bool{1: false},
+			slice: []int{},
+			want:  map[int]bool{1: false},
+		},
+		{
+			name:         "success",
+			_map:         map[int]bool{1: false},
+			slice:        []int{2},
+			defaultValue: true,
+			want:         map[int]bool{1: false, 2: true},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := PutAllToMapAsKeys(tt._map, tt.slice, tt.defaultValue); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("PutAllToMapAsKeys() = %v, want %v", got, tt.want)
 			}
 		})
 	}

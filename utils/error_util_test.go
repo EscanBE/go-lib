@@ -6,25 +6,54 @@ import (
 )
 
 func TestExitIfErr(t *testing.T) {
-	type args struct {
-		err error
-		msg string
-	}
 	tests := []struct {
 		name string
-		args args
+		err  error
+		msg  string
 	}{
 		{
 			name: "will not exit if non-error",
-			args: args{
-				err: nil,
-				msg: "",
-			},
+			err:  nil,
+			msg:  "",
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			ExitIfErr(tt.args.err, tt.args.msg)
+			ExitIfErr(tt.err, tt.msg)
+		})
+	}
+}
+
+func TestPanicIfErr(t *testing.T) {
+	tests := []struct {
+		name      string
+		err       error
+		msg       string
+		wantPanic bool
+	}{
+		{
+			name: "will not panic if non-error",
+			err:  nil,
+			msg:  "",
+		},
+		{
+			name:      "will panic if error",
+			err:       fmt.Errorf("panic"),
+			msg:       "panic",
+			wantPanic: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			defer func() {
+				r := recover()
+				if r == nil && tt.wantPanic {
+					t.Errorf("The code did not panic")
+				} else if r != nil && !tt.wantPanic {
+					t.Errorf("The code should panic")
+				}
+			}()
+			PanicIfErr(tt.err, tt.msg)
 		})
 	}
 }
