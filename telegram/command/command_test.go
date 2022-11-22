@@ -2,6 +2,7 @@ package command
 
 import (
 	"fmt"
+	"github.com/EscanBE/go-lib/test_utils"
 	"strings"
 	"testing"
 )
@@ -87,14 +88,8 @@ func TestGetCommandInfo(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.command, func(t *testing.T) {
-			defer func() {
-				r := recover()
-				if r == nil && tt.wantPanic {
-					t.Errorf("The code did not panic")
-				} else if r != nil && !tt.wantPanic {
-					t.Errorf("The code should panic")
-				}
-			}()
+			defer test_utils.DeferWantPanicDepends(t, tt.wantPanic)
+
 			gotOriginalCommand, gotCommandAlias, gotDesc, gotArgDesc := GetCommandInfo(tt.command)
 			if gotOriginalCommand != tt.wantOriginalCommand {
 				t.Errorf("GetCommandInfo() gotOriginalCommand = %v, want %v", gotOriginalCommand, tt.wantOriginalCommand)
@@ -165,14 +160,8 @@ func TestIsCommandDisabled(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.command, func(t *testing.T) {
-			defer func() {
-				r := recover()
-				if r == nil && tt.wantPanic {
-					t.Errorf("The code did not panic")
-				} else if r != nil && !tt.wantPanic {
-					t.Errorf("The code should panic")
-				}
-			}()
+			defer test_utils.DeferWantPanicDepends(t, tt.wantPanic)
+
 			if got := IsCommandDisabled(tt.command); got != tt.want {
 				t.Errorf("IsCommandDisabled() = %v, want %v", got, tt.want)
 			}
@@ -265,6 +254,7 @@ func TestRegisterCommand(t *testing.T) {
 					}
 				}
 			}()
+
 			RegisterCommand(tt.args.command, tt.args.alias, tt.args.desc, tt.args.argDesc)
 			disablePanic = true
 			if len(tt.args.argDesc) > 0 {
@@ -297,12 +287,7 @@ func Test_registerCommands(t *testing.T) {
 	tests := []string{"m", "1", " 1"}
 	for _, command := range tests {
 		t.Run(command, func(t *testing.T) {
-			defer func() {
-				r := recover()
-				if r == nil {
-					t.Errorf("The code did not panic")
-				}
-			}()
+			defer test_utils.DeferWantPanic(t)
 			registerCommands(command)
 		})
 	}

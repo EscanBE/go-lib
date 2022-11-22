@@ -1,9 +1,9 @@
 package utils
 
 import (
+	"github.com/EscanBE/go-lib/test_utils"
 	"github.com/EscanBE/go-lib/types"
 	"golang.org/x/crypto/ssh"
-	"strings"
 	"testing"
 )
 
@@ -115,14 +115,7 @@ func TestExecuteRemoteCommandViaSSH(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			defer func() {
-				r := recover()
-				if r == nil && tt.wantPanic {
-					t.Errorf("The code did not panic")
-				} else if r != nil && !tt.wantPanic {
-					t.Errorf("The code should panic")
-				}
-			}()
+			defer test_utils.DeferWantPanicDepends(t, tt.wantPanic)
 
 			got, err := ExecuteRemoteCommandViaSSH(tt.remoteCommand, tt.remoteServer)
 			wantErr := len(tt.wantErrMsg) > 0
@@ -130,11 +123,8 @@ func TestExecuteRemoteCommandViaSSH(t *testing.T) {
 				t.Errorf("ExecuteRemoteCommandViaSSH() error = %v, wantErr %v", err, wantErr)
 				return
 			}
-			if err != nil {
-				if !strings.Contains(err.Error(), tt.wantErrMsg) {
-					t.Errorf("executeRemoteCommandViaSSHUsingPrivateKey() error = [%s], expect contains [%s]", err.Error(), tt.wantErrMsg)
-					return
-				}
+			if !test_utils.WantErrorContainsStringIfNonEmptyOtherWiseNoError(t, err, tt.wantErrMsg) {
+				return
 			}
 			if got != "" {
 				t.Errorf("ExecuteRemoteCommandViaSSH() blind test expect empty response")
@@ -189,11 +179,8 @@ func Test_executeRemoteCommandViaSSHUsingPrivateKey(t *testing.T) {
 				t.Errorf("executeRemoteCommandViaSSHUsingPrivateKey() error = %v, wantErr %v", err, wantErr)
 				return
 			}
-			if err != nil {
-				if !strings.Contains(err.Error(), tt.wantErrMsg) {
-					t.Errorf("executeRemoteCommandViaSSHUsingPrivateKey() error = [%s], expect contains [%s]", err.Error(), tt.wantErrMsg)
-					return
-				}
+			if !test_utils.WantErrorContainsStringIfNonEmptyOtherWiseNoError(t, err, tt.wantErrMsg) {
+				return
 			}
 			if got != "" {
 				t.Errorf("ExecuteRemoteCommandViaSSH() blind test expect empty response")
@@ -325,11 +312,8 @@ func Test_executeRemoteCommandViaSSH(t *testing.T) {
 				t.Errorf("executeRemoteCommandViaSSH() error = %v, wantErr %v", err, wantErr)
 				return
 			}
-			if err != nil {
-				if !strings.Contains(err.Error(), tt.wantErrMsg) {
-					t.Errorf("executeRemoteCommandViaSSH() error = [%s], expect contains [%s]", err.Error(), tt.wantErrMsg)
-					return
-				}
+			if !test_utils.WantErrorContainsStringIfNonEmptyOtherWiseNoError(t, err, tt.wantErrMsg) {
+				return
 			}
 			if got != tt.want {
 				t.Errorf("executeRemoteCommandViaSSH() got = %v, want %v", got, tt.want)

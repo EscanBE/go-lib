@@ -3,6 +3,7 @@ package app
 import (
 	"fmt"
 	"github.com/EscanBE/go-lib/logging"
+	"github.com/EscanBE/go-lib/test_utils"
 	"strings"
 	"testing"
 )
@@ -49,12 +50,9 @@ func TestExecuteExitFunction(t *testing.T) {
 	}
 
 	appExitFunction = nil
-	defer func() {
-		r := recover()
-		if r == nil {
-			t.Errorf("The code did not panic")
-		}
-	}()
+
+	defer test_utils.DeferWantPanic(t)
+	
 	ExecuteExitFunction("3", "4", "5")
 }
 

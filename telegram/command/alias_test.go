@@ -1,6 +1,7 @@
 package command
 
 import (
+	"github.com/EscanBE/go-lib/test_utils"
 	"testing"
 )
 
@@ -114,14 +115,8 @@ func Test_registerCommandAlias(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			defer func() {
-				r := recover()
-				if r == nil && tt.wantPanic {
-					t.Errorf("The code did not panic")
-				} else if r != nil && !tt.wantPanic {
-					t.Errorf("The code should panic")
-				}
-			}()
+			defer test_utils.DeferWantPanicDepends(t, tt.wantPanic)
+
 			if tt.register {
 				registerCommands(tt.command)
 			}
@@ -141,12 +136,7 @@ func Test_registerCommandAlias2(t *testing.T) {
 	registerCommands("help", "version")
 	registerCommandAlias("help", "h")
 
-	defer func() {
-		r := recover()
-		if r == nil {
-			t.Errorf("The code did not panic")
-		}
-	}()
+	defer test_utils.DeferWantPanic(t)
 
 	// expect panic because "h" was previously registered as alias for "help"
 	registerCommandAlias("version", "h")

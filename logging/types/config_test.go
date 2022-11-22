@@ -2,7 +2,7 @@ package types
 
 import (
 	"fmt"
-	"strings"
+	"github.com/EscanBE/go-lib/test_utils"
 	"testing"
 )
 
@@ -26,33 +26,28 @@ func TestLoggingConfig_Validate(t *testing.T) {
 		name               string
 		level              string
 		format             string
-		wantErr            bool
 		wantErrMsgContains string
 	}{
 		{
-			name:    "success",
-			level:   LOG_LEVEL_DEFAULT,
-			format:  LOG_FORMAT_DEFAULT,
-			wantErr: false,
+			name:   "success",
+			level:  LOG_LEVEL_DEFAULT,
+			format: LOG_FORMAT_DEFAULT,
 		},
 		{
-			name:    "empty ok",
-			level:   "",
-			format:  "",
-			wantErr: false,
+			name:   "empty ok",
+			level:  "",
+			format: "",
 		},
 		{
 			name:               "invalid level",
 			level:              LOG_LEVEL_DEFAULT + "-invalid",
 			format:             LOG_FORMAT_DEFAULT,
-			wantErr:            true,
 			wantErrMsgContains: "level",
 		},
 		{
 			name:               "invalid format",
 			level:              LOG_LEVEL_DEFAULT,
 			format:             LOG_FORMAT_DEFAULT + "-invalid",
-			wantErr:            true,
 			wantErrMsgContains: "format",
 		},
 	}
@@ -63,16 +58,13 @@ func TestLoggingConfig_Validate(t *testing.T) {
 				Format: tt.format,
 			}
 			err := c.Validate()
-			if (err != nil) != tt.wantErr {
-				t.Errorf("Validate() error = %v, wantErr %v", err, tt.wantErr)
+			wantErr := len(tt.wantErrMsgContains) > 0
+			if (err != nil) != wantErr {
+				t.Errorf("Validate() error = %v, wantErr %v", err, wantErr)
+				return
 			}
-			if err != nil {
-				if len(tt.wantErrMsgContains) < 1 {
-					t.Errorf("setup test wrongly. Partial err msg is required")
-				}
-				if !strings.Contains(err.Error(), tt.wantErrMsgContains) {
-					t.Errorf("Validate() error = %s, want contains %s", err.Error(), tt.wantErrMsgContains)
-				}
+			if !test_utils.WantErrorContainsStringIfNonEmptyOtherWiseNoError(t, err, tt.wantErrMsgContains) {
+				return
 			}
 		})
 	}

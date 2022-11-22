@@ -2,6 +2,7 @@ package utils
 
 import (
 	"fmt"
+	"github.com/EscanBE/go-lib/test_utils"
 	"os"
 	"testing"
 )
@@ -63,14 +64,7 @@ func TestPanicIfErr(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			defer func() {
-				r := recover()
-				if r == nil && tt.wantPanic {
-					t.Errorf("The code did not panic")
-				} else if r != nil && !tt.wantPanic {
-					t.Errorf("The code should panic")
-				}
-			}()
+			defer test_utils.DeferWantPanicDepends(t, tt.wantPanic)
 			PanicIfErr(tt.err, tt.msg)
 		})
 	}
