@@ -1,7 +1,9 @@
 package app
 
 import (
+	"fmt"
 	"github.com/EscanBE/go-lib/logging"
+	"strings"
 	"testing"
 )
 
@@ -57,37 +59,14 @@ func TestExecuteExitFunction(t *testing.T) {
 }
 
 func TestTryRecoverAndExecuteExitFunctionIfRecovered(t *testing.T) {
-	num := 0
-
-	// multiple defer, last in first out
-
-	// so final defer to be run should be declared first
-	defer func() {
-		r := recover()
-
-		if r == nil {
-			t.Errorf("expect panic (re-throw)")
-			return
-		}
-
-		const want = 1
-		got := num
-		if got != want {
-			t.Errorf("TryRecoverAndExecuteExitFunctionIfRecovered() executed wrongly. Got %d but want %d", got, want)
-		}
-	}()
-	defer TryRecoverAndExecuteExitFunctionIfRecovered(logging.NewDefaultLogger())
-
-	appExitFunction = nil
-
-	RegisterExitFunction(func(params ...any) {
-		num += 1
-	})
-
-	panic("fake")
+	testTryRecoverAndExecuteExitFunctionIfRecovered(t, logging.NewDefaultLogger())
 }
 
 func TestTryRecoverAndExecuteExitFunctionIfRecovered_WithoutLogger(t *testing.T) {
+	testTryRecoverAndExecuteExitFunctionIfRecovered(t, nil)
+}
+
+func testTryRecoverAndExecuteExitFunctionIfRecovered(t *testing.T, logger logging.Logger) {
 	num := 0
 
 	// multiple defer, last in first out
@@ -101,13 +80,18 @@ func TestTryRecoverAndExecuteExitFunctionIfRecovered_WithoutLogger(t *testing.T)
 			return
 		}
 
+		if !strings.Contains(fmt.Sprintf("%v", r), "fake") {
+			t.Errorf("wrong error")
+			return
+		}
+
 		const want = 1
 		got := num
 		if got != want {
 			t.Errorf("TryRecoverAndExecuteExitFunctionIfRecovered() executed wrongly. Got %d but want %d", got, want)
 		}
 	}()
-	defer TryRecoverAndExecuteExitFunctionIfRecovered(logging.NewDefaultLogger())
+	defer TryRecoverAndExecuteExitFunctionIfRecovered(logger)
 
 	appExitFunction = nil
 
