@@ -2,6 +2,7 @@ package utils
 
 import (
 	"fmt"
+	"os"
 	"testing"
 )
 
@@ -9,17 +10,34 @@ func TestExitIfErr(t *testing.T) {
 	tests := []struct {
 		name string
 		err  error
-		msg  string
 	}{
 		{
 			name: "will not exit if non-error",
 			err:  nil,
-			msg:  "",
+		},
+		{
+			name: "will exit with code 1 if error",
+			err:  fmt.Errorf("fake"),
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			ExitIfErr(tt.err, tt.msg)
+			var got int
+			myExit := func(code int) {
+				got = code
+			}
+			if tt.err != nil {
+				defer func() {
+					osExit = os.Exit // restore
+				}()
+				osExit = myExit
+				ExitIfErr(tt.err, "")
+				if got != 1 {
+					t.Errorf("program should exit with code 1")
+				}
+			} else {
+				ExitIfErr(tt.err, "")
+			}
 		})
 	}
 }
