@@ -31,9 +31,17 @@ func ExecuteExitFunction(params ...any) {
 func TryRecoverAndExecuteExitFunctionIfRecovered(logger logging.Logger, exitFuncParams ...any) {
 	err := recover()
 	if err != nil {
-		logger.Error("Recovered from panic, executing exit function")
+		if logger != nil {
+			logger.Error("Recovered from panic, executing exit function")
+		} else {
+			fmt.Println("Recovered from panic, executing exit function")
+		}
 		ExecuteExitFunction(exitFuncParams...)
-		logger.Error("Executed exit function, going to panic using recovered error")
+		if logger != nil {
+			logger.Error("Executed exit function, going to panic using recovered error")
+		} else {
+			fmt.Println("Executed exit function, going to panic using recovered error")
+		}
 		panic(err)
 	}
 }
