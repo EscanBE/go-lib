@@ -1,6 +1,9 @@
 package app
 
-import "fmt"
+import (
+	"fmt"
+	"github.com/EscanBE/go-lib/logging"
+)
 
 // AppExitFunction is an alias of function which receives params
 //goland:noinspection GoNameStartsWithPackageName
@@ -20,4 +23,25 @@ func ExecuteExitFunction(params ...any) {
 		panic(fmt.Errorf("app exit function was not registered"))
 	}
 	appExitFunction(params...)
+}
+
+// TryRecoverAndExecuteExitFunctionIfRecovered will check if method has exited with panic.
+// If recovered, it will execute exit function and then panic again using that error.
+// Otherwise, do nothing (when recover is nil)
+func TryRecoverAndExecuteExitFunctionIfRecovered(logger logging.Logger, exitFuncParams ...any) {
+	err := recover()
+	if err != nil {
+		if logger != nil {
+			logger.Error("Recovered from panic, executing exit function")
+		} else {
+			fmt.Println("Recovered from panic, executing exit function")
+		}
+		ExecuteExitFunction(exitFuncParams...)
+		if logger != nil {
+			logger.Error("Executed exit function, going to panic using recovered error")
+		} else {
+			fmt.Println("Executed exit function, going to panic using recovered error")
+		}
+		panic(err)
+	}
 }

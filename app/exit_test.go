@@ -1,6 +1,9 @@
 package app
 
-import "testing"
+import (
+	"github.com/EscanBE/go-lib/logging"
+	"testing"
+)
 
 func TestRegisterExitFunction(t *testing.T) {
 	appExitFunction = nil
@@ -51,4 +54,66 @@ func TestExecuteExitFunction(t *testing.T) {
 		}
 	}()
 	ExecuteExitFunction("3", "4", "5")
+}
+
+func TestTryRecoverAndExecuteExitFunctionIfRecovered(t *testing.T) {
+	num := 0
+
+	// multiple defer, last in first out
+
+	// so final defer to be run should be declared first
+	defer func() {
+		r := recover()
+
+		if r == nil {
+			t.Errorf("expect panic (re-throw)")
+			return
+		}
+
+		const want = 1
+		got := num
+		if got != want {
+			t.Errorf("TryRecoverAndExecuteExitFunctionIfRecovered() executed wrongly. Got %d but want %d", got, want)
+		}
+	}()
+	defer TryRecoverAndExecuteExitFunctionIfRecovered(logging.NewDefaultLogger())
+
+	appExitFunction = nil
+
+	RegisterExitFunction(func(params ...any) {
+		num += 1
+	})
+
+	panic("fake")
+}
+
+func TestTryRecoverAndExecuteExitFunctionIfRecovered_WithoutLogger(t *testing.T) {
+	num := 0
+
+	// multiple defer, last in first out
+
+	// so final defer to be run should be declared first
+	defer func() {
+		r := recover()
+
+		if r == nil {
+			t.Errorf("expect panic (re-throw)")
+			return
+		}
+
+		const want = 1
+		got := num
+		if got != want {
+			t.Errorf("TryRecoverAndExecuteExitFunctionIfRecovered() executed wrongly. Got %d but want %d", got, want)
+		}
+	}()
+	defer TryRecoverAndExecuteExitFunctionIfRecovered(logging.NewDefaultLogger())
+
+	appExitFunction = nil
+
+	RegisterExitFunction(func(params ...any) {
+		num += 1
+	})
+
+	panic("fake")
 }
