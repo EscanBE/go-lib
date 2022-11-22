@@ -73,6 +73,9 @@ func executeRemoteCommandViaSSH(remoteCommand string, remoteServer *types.SshRem
 	if IsBlank(remoteServer.Username) {
 		return "", fmt.Errorf("no username was provided")
 	}
+	if len(auth) < 1 {
+		return "", fmt.Errorf("no auth was provided")
+	}
 
 	// Authentication
 	config := &ssh.ClientConfig{

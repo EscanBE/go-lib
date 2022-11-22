@@ -2,6 +2,8 @@ package utils
 
 import (
 	"github.com/EscanBE/go-lib/types"
+	"golang.org/x/crypto/ssh"
+	"strings"
 	"testing"
 )
 
@@ -128,6 +130,12 @@ func TestExecuteRemoteCommandViaSSH(t *testing.T) {
 				t.Errorf("ExecuteRemoteCommandViaSSH() error = %v, wantErr %v", err, wantErr)
 				return
 			}
+			if err != nil {
+				if !strings.Contains(err.Error(), tt.wantErrMsg) {
+					t.Errorf("executeRemoteCommandViaSSHUsingPrivateKey() error = [%s], expect contains [%s]", err.Error(), tt.wantErrMsg)
+					return
+				}
+			}
 			if got != "" {
 				t.Errorf("ExecuteRemoteCommandViaSSH() blind test expect empty response")
 			}
@@ -181,8 +189,40 @@ func Test_executeRemoteCommandViaSSHUsingPrivateKey(t *testing.T) {
 				t.Errorf("executeRemoteCommandViaSSHUsingPrivateKey() error = %v, wantErr %v", err, wantErr)
 				return
 			}
+			if err != nil {
+				if !strings.Contains(err.Error(), tt.wantErrMsg) {
+					t.Errorf("executeRemoteCommandViaSSHUsingPrivateKey() error = [%s], expect contains [%s]", err.Error(), tt.wantErrMsg)
+					return
+				}
+			}
 			if got != "" {
 				t.Errorf("ExecuteRemoteCommandViaSSH() blind test expect empty response")
+			}
+		})
+	}
+}
+
+func Test_executeRemoteCommandViaSSH(t *testing.T) {
+	tests := []struct {
+		name          string
+		remoteCommand string
+		remoteServer  *types.SshRemote
+		auth          []ssh.AuthMethod
+		want          string
+		wantErrMsg    string
+	}{
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := executeRemoteCommandViaSSH(tt.remoteCommand, tt.remoteServer, tt.auth)
+			wantErr := len(tt.wantErrMsg) > 0
+			if (err != nil) != wantErr {
+				t.Errorf("executeRemoteCommandViaSSH() error = %v, wantErr %v", err, wantErr)
+				return
+			}
+			if got != tt.want {
+				t.Errorf("executeRemoteCommandViaSSH() got = %v, want %v", got, tt.want)
 			}
 		})
 	}
