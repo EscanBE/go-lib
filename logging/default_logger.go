@@ -73,24 +73,26 @@ func (d *defaultLogger) Error(msg string, keyVals ...interface{}) {
 
 // ApplyConfig implements Logger
 func (d *defaultLogger) ApplyConfig(config logtypes.LoggingConfig) error {
+	validationErr := config.Validate()
+	if validationErr != nil {
+		return validationErr
+	}
 	if len(config.Level) > 0 {
-		err := d.SetLogLevel(config.Level)
-		if err != nil {
-			return err
-		}
+		_ = d.SetLogLevel(config.Level) // shouldn't err, validated before
 	}
 	if len(config.Format) > 0 {
-		err := d.SetLogFormat(config.Format)
-		if err != nil {
-			return err
-		}
+		_ = d.SetLogFormat(config.Format) // shouldn't err, validated before
 	}
 	return nil
 }
 
 func getLogFields(keyVals ...interface{}) map[string]interface{} {
-	if len(keyVals) < 1 || len(keyVals)%2 != 0 {
+	if len(keyVals) < 1 {
 		return nil
+	}
+
+	if len(keyVals)%2 != 0 {
+		panic(fmt.Errorf("number of argument should be even"))
 	}
 
 	fields := make(map[string]interface{})

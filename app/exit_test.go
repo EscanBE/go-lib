@@ -42,4 +42,13 @@ func TestExecuteExitFunction(t *testing.T) {
 	if value != 2 {
 		t.Errorf("RegisterExitFunction() registered exit function but it does not work as expected")
 	}
+
+	appExitFunction = nil
+	defer func() {
+		r := recover()
+		if r == nil {
+			t.Errorf("The code did not panic")
+		}
+	}()
+	ExecuteExitFunction("3", "4", "5")
 }
