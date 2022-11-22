@@ -202,6 +202,16 @@ func Test_executeRemoteCommandViaSSHUsingPrivateKey(t *testing.T) {
 	}
 }
 
+var privateKeyAuth = func() []ssh.AuthMethod {
+	key, err := ssh.ParsePrivateKeyWithPassphrase([]byte(testPk), []byte(passphraseTestPk))
+	if err != nil {
+		return nil
+	}
+	return []ssh.AuthMethod{
+		ssh.PublicKeys(key),
+	}
+}
+
 func Test_executeRemoteCommandViaSSH(t *testing.T) {
 	tests := []struct {
 		name          string
@@ -211,7 +221,101 @@ func Test_executeRemoteCommandViaSSH(t *testing.T) {
 		want          string
 		wantErrMsg    string
 	}{
-		// TODO: Add test cases.
+		{
+			name:          "require command",
+			remoteCommand: "",
+			remoteServer:  generateRemoteServer(nil, nil),
+			auth:          privateKeyAuth(),
+			wantErrMsg:    "no command was provided",
+		},
+		{
+			name:          "require host",
+			remoteCommand: "sudo reboot",
+			remoteServer: &types.SshRemote{
+				Host:     "",
+				Port:     "22",
+				Username: "test",
+			},
+			auth:       privateKeyAuth(),
+			wantErrMsg: "no remote host was provided",
+		},
+		{
+			name:          "require port",
+			remoteCommand: "sudo reboot",
+			remoteServer: &types.SshRemote{
+				Host:     "192.168.0.1",
+				Port:     " \t\r\n",
+				Username: "test",
+			},
+			auth:       privateKeyAuth(),
+			wantErrMsg: "no SSH port was provided",
+		},
+		{
+			name:          "bad SSH port",
+			remoteCommand: "sudo reboot",
+			remoteServer: &types.SshRemote{
+				Host:     "192.168.0.1",
+				Port:     "0",
+				Username: "test",
+			},
+			auth:       privateKeyAuth(),
+			wantErrMsg: "bad SSH port",
+		},
+		{
+			name:          "bad SSH port",
+			remoteCommand: "sudo reboot",
+			remoteServer: &types.SshRemote{
+				Host:     "192.168.0.1",
+				Port:     "77777",
+				Username: "test",
+			},
+			auth:       privateKeyAuth(),
+			wantErrMsg: "bad SSH port",
+		},
+		{
+			name:          "bad SSH port",
+			remoteCommand: "sudo reboot",
+			remoteServer: &types.SshRemote{
+				Host:     "192.168.0.1",
+				Port:     "bad",
+				Username: "test",
+			},
+			auth:       privateKeyAuth(),
+			wantErrMsg: "port is invalid format",
+		},
+		{
+			name:          "require username",
+			remoteCommand: "sudo reboot",
+			remoteServer: &types.SshRemote{
+				Host:     "192.168.0.1",
+				Port:     "22",
+				Username: "",
+			},
+			auth:       privateKeyAuth(),
+			wantErrMsg: "no username was provided",
+		},
+		{
+			name:          "require auth",
+			remoteCommand: "sudo reboot",
+			remoteServer: &types.SshRemote{
+				Host:     "192.168.0.1",
+				Port:     "22",
+				Username: "test",
+			},
+			auth:       nil,
+			wantErrMsg: "no auth was provided",
+		},
+		{
+			name:          "failed to connect",
+			remoteCommand: "sudo reboot",
+			remoteServer: &types.SshRemote{
+				Host:     "192.168.0.1a9",
+				Port:     "22222",
+				Username: "test",
+			},
+			auth:       privateKeyAuth(),
+			wantErrMsg: "failed to connect to remote server",
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -220,6 +324,12 @@ func Test_executeRemoteCommandViaSSH(t *testing.T) {
 			if (err != nil) != wantErr {
 				t.Errorf("executeRemoteCommandViaSSH() error = %v, wantErr %v", err, wantErr)
 				return
+			}
+			if err != nil {
+				if !strings.Contains(err.Error(), tt.wantErrMsg) {
+					t.Errorf("executeRemoteCommandViaSSH() error = [%s], expect contains [%s]", err.Error(), tt.wantErrMsg)
+					return
+				}
 			}
 			if got != tt.want {
 				t.Errorf("executeRemoteCommandViaSSH() got = %v, want %v", got, tt.want)
