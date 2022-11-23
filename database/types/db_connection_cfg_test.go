@@ -1,7 +1,7 @@
 package types
 
 import (
-	"strings"
+	"github.com/EscanBE/go-lib/test_utils"
 	"testing"
 )
 
@@ -19,7 +19,6 @@ func TestPostgresDatabaseConfig_Validate(t *testing.T) {
 	}
 	tests := []struct {
 		fields     fields
-		wantErr    bool
 		wantErrMsg string
 	}{
 		{
@@ -34,7 +33,6 @@ func TestPostgresDatabaseConfig_Validate(t *testing.T) {
 				MaxOpenConnectionCount: 20,
 				MaxIdleConnectionCount: 20,
 			},
-			wantErr:    false,
 			wantErrMsg: "",
 		},
 		{
@@ -49,7 +47,6 @@ func TestPostgresDatabaseConfig_Validate(t *testing.T) {
 				MaxOpenConnectionCount: 20,
 				MaxIdleConnectionCount: 20,
 			},
-			wantErr:    true,
 			wantErrMsg: "host",
 		},
 		{
@@ -64,7 +61,6 @@ func TestPostgresDatabaseConfig_Validate(t *testing.T) {
 				MaxOpenConnectionCount: 20,
 				MaxIdleConnectionCount: 20,
 			},
-			wantErr:    true,
 			wantErrMsg: "port",
 		},
 		{
@@ -79,7 +75,6 @@ func TestPostgresDatabaseConfig_Validate(t *testing.T) {
 				MaxOpenConnectionCount: 20,
 				MaxIdleConnectionCount: 20,
 			},
-			wantErr:    true,
 			wantErrMsg: "username",
 		},
 		{
@@ -94,7 +89,6 @@ func TestPostgresDatabaseConfig_Validate(t *testing.T) {
 				MaxOpenConnectionCount: 20,
 				MaxIdleConnectionCount: 20,
 			},
-			wantErr:    true,
 			wantErrMsg: "password",
 		},
 		{
@@ -109,7 +103,6 @@ func TestPostgresDatabaseConfig_Validate(t *testing.T) {
 				MaxOpenConnectionCount: 20,
 				MaxIdleConnectionCount: 20,
 			},
-			wantErr:    true,
 			wantErrMsg: "database name",
 		},
 		{
@@ -124,7 +117,6 @@ func TestPostgresDatabaseConfig_Validate(t *testing.T) {
 				MaxOpenConnectionCount: 20,
 				MaxIdleConnectionCount: 20,
 			},
-			wantErr: false,
 		},
 		{
 			fields: fields{
@@ -138,7 +130,6 @@ func TestPostgresDatabaseConfig_Validate(t *testing.T) {
 				MaxOpenConnectionCount: -2,
 				MaxIdleConnectionCount: 20,
 			},
-			wantErr:    true,
 			wantErrMsg: "max-open",
 		},
 		{
@@ -153,7 +144,6 @@ func TestPostgresDatabaseConfig_Validate(t *testing.T) {
 				MaxOpenConnectionCount: 20,
 				MaxIdleConnectionCount: -2,
 			},
-			wantErr:    true,
 			wantErrMsg: "max-idle",
 		},
 	}
@@ -171,11 +161,13 @@ func TestPostgresDatabaseConfig_Validate(t *testing.T) {
 				MaxIdleConnectionCount: tt.fields.MaxIdleConnectionCount,
 			}
 			err := c.Validate()
-			if (err != nil) != tt.wantErr {
-				t.Errorf("Validate() error = %v, wantErr %v", err, tt.wantErr)
+			wantErr := len(tt.wantErrMsg) > 0
+			if (err != nil) != wantErr {
+				t.Errorf("Validate() error = %v, wantErr %v", err, wantErr)
+				return
 			}
-			if err != nil && !strings.Contains(err.Error(), tt.wantErrMsg) {
-				t.Errorf("Validate() expected error message [%s] must contains [%s]", err.Error(), tt.wantErrMsg)
+			if !test_utils.WantErrorContainsStringIfNonEmptyOtherWiseNoError(t, err, tt.wantErrMsg) {
+				return
 			}
 		})
 	}

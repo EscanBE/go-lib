@@ -1,7 +1,11 @@
 package app
 
 import (
+	"fmt"
 	"github.com/EscanBE/go-lib/logging"
+	"github.com/EscanBE/go-lib/test_utils"
+	"math/rand"
+	"strings"
 	"testing"
 )
 
@@ -47,47 +51,20 @@ func TestExecuteExitFunction(t *testing.T) {
 	}
 
 	appExitFunction = nil
-	defer func() {
-		r := recover()
-		if r == nil {
-			t.Errorf("The code did not panic")
-		}
-	}()
+
+	defer test_utils.DeferWantPanic(t)
+
 	ExecuteExitFunction("3", "4", "5")
 }
 
 func TestTryRecoverAndExecuteExitFunctionIfRecovered(t *testing.T) {
-	num := 0
-
-	// multiple defer, last in first out
-
-	// so final defer to be run should be declared first
-	defer func() {
-		r := recover()
-
-		if r == nil {
-			t.Errorf("expect panic (re-throw)")
-			return
-		}
-
-		const want = 1
-		got := num
-		if got != want {
-			t.Errorf("TryRecoverAndExecuteExitFunctionIfRecovered() executed wrongly. Got %d but want %d", got, want)
-		}
-	}()
-	defer TryRecoverAndExecuteExitFunctionIfRecovered(logging.NewDefaultLogger())
-
-	appExitFunction = nil
-
-	RegisterExitFunction(func(params ...any) {
-		num += 1
-	})
-
-	panic("fake")
+	testTryRecoverAndExecuteExitFunctionIfRecovered(t, logging.NewDefaultLogger())
+	testTryRecoverAndExecuteExitFunctionIfRecovered(t, nil)
 }
 
-func TestTryRecoverAndExecuteExitFunctionIfRecovered_WithoutLogger(t *testing.T) {
+func testTryRecoverAndExecuteExitFunctionIfRecovered(t *testing.T, logger logging.Logger) {
+	panicMsg := fmt.Sprintf("fake panic %d", rand.Int())
+
 	num := 0
 
 	// multiple defer, last in first out
@@ -101,13 +78,18 @@ func TestTryRecoverAndExecuteExitFunctionIfRecovered_WithoutLogger(t *testing.T)
 			return
 		}
 
+		if !strings.Contains(fmt.Sprintf("%v", r), panicMsg) {
+			t.Errorf("wrong error")
+			return
+		}
+
 		const want = 1
 		got := num
 		if got != want {
 			t.Errorf("TryRecoverAndExecuteExitFunctionIfRecovered() executed wrongly. Got %d but want %d", got, want)
 		}
 	}()
-	defer TryRecoverAndExecuteExitFunctionIfRecovered(logging.NewDefaultLogger())
+	defer TryRecoverAndExecuteExitFunctionIfRecovered(logger)
 
 	appExitFunction = nil
 
@@ -115,5 +97,5 @@ func TestTryRecoverAndExecuteExitFunctionIfRecovered_WithoutLogger(t *testing.T)
 		num += 1
 	})
 
-	panic("fake")
+	panic(panicMsg)
 }

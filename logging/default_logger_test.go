@@ -1,11 +1,10 @@
 package logging
 
 import (
-	"fmt"
 	logtypes "github.com/EscanBE/go-lib/logging/types"
+	"github.com/EscanBE/go-lib/test_utils"
 	"github.com/rs/zerolog"
 	"reflect"
-	"strings"
 	"testing"
 )
 
@@ -16,7 +15,6 @@ func TestNewDefaultLogger(t *testing.T) {
 		if zerolog.GlobalLevel().String() != level.String() {
 			t.Errorf("NewDefaultLogger() wrong defaul level, got %s, want %s", zerolog.GlobalLevel().String(), logtypes.LOG_LEVEL_DEFAULT)
 		}
-
 	})
 }
 
@@ -119,6 +117,8 @@ func Test_defaultLogger_SetLogFormat(t *testing.T) {
 
 func Test_defaultLogger_Info_Debug_Error(t *testing.T) {
 	t.Run("log success", func(t *testing.T) {
+		defer test_utils.DeferWantNoPanic(t)
+
 		logger := NewDefaultLogger()
 		logger.Info("info")
 		logger.Debug("debug")
@@ -134,33 +134,28 @@ func Test_defaultLogger_ApplyConfig(t *testing.T) {
 		name               string
 		level              string
 		format             string
-		wantErr            bool
 		wantErrMsgContains string
 	}{
 		{
-			name:    "success",
-			level:   logtypes.LOG_LEVEL_DEFAULT,
-			format:  logtypes.LOG_FORMAT_DEFAULT,
-			wantErr: false,
+			name:   "success",
+			level:  logtypes.LOG_LEVEL_DEFAULT,
+			format: logtypes.LOG_FORMAT_DEFAULT,
 		},
 		{
-			name:    "empty ok",
-			level:   "",
-			format:  "",
-			wantErr: false,
+			name:   "empty ok",
+			level:  "",
+			format: "",
 		},
 		{
 			name:               "wrong level",
 			level:              logtypes.LOG_LEVEL_DEFAULT + "-invalid",
 			format:             logtypes.LOG_FORMAT_DEFAULT,
-			wantErr:            true,
 			wantErrMsgContains: "level",
 		},
 		{
 			name:               "wrong format",
 			level:              logtypes.LOG_LEVEL_DEFAULT,
 			format:             logtypes.LOG_FORMAT_DEFAULT + "-invalid",
-			wantErr:            true,
 			wantErrMsgContains: "format",
 		},
 	}
@@ -171,16 +166,13 @@ func Test_defaultLogger_ApplyConfig(t *testing.T) {
 				Level:  tt.level,
 				Format: tt.format,
 			})
-			if (err != nil) != tt.wantErr {
-				t.Errorf("ApplyConfig() error = %v, wantErr %v", err, tt.wantErr)
+			wantErr := len(tt.wantErrMsgContains) > 0
+			if (err != nil) != wantErr {
+				t.Errorf("ApplyConfig() error = %v, wantErr %v", err, wantErr)
+				return
 			}
-			if err != nil {
-				if len(tt.wantErrMsgContains) < 1 {
-					t.Errorf("setup test wrongly")
-				}
-				if !strings.Contains(err.Error(), tt.wantErrMsgContains) {
-					t.Errorf("ApplyConfig() error \"%s\" expected contains \"%s\"", err.Error(), tt.wantErrMsgContains)
-				}
+			if !test_utils.WantErrorContainsStringIfNonEmptyOtherWiseNoError(t, err, tt.wantErrMsgContains) {
+				return
 			}
 		})
 	}
@@ -216,15 +208,8 @@ func Test_getLogFields(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			defer func() {
-				r := recover()
-				if r == nil && tt.wantPanic {
-					t.Errorf("The code did not panic")
-				} else if r != nil && !tt.wantPanic {
-					t.Errorf("The code should panic")
-					fmt.Println(r)
-				}
-			}()
+			defer test_utils.DeferWantPanicDepends(t, tt.wantPanic)
+
 			if got := getLogFields(tt.input...); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("getLogFields() = %v, want %v", got, tt.want)
 			}

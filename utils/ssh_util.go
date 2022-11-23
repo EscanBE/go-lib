@@ -25,7 +25,7 @@ func ExecuteRemoteCommandViaSSH(remoteCommand string, remoteServer *types.SshRem
 // executeRemoteCommandViaSSHUsingPrivateKey performs execution of remote command on target server,
 // using private key authentication method,
 // it returns the output string of the execution and an error if any
-func executeRemoteCommandViaSSHUsingPrivateKey(remoteCommand string, remoteServer *types.SshRemote) (string, error) {
+func executeRemoteCommandViaSSHUsingPrivateKey(remoteCommand string, remoteServer *types.SshRemote) (stdOut string, resErr error) {
 	if remoteServer.AuthByPrivateKey == nil {
 		return "", fmt.Errorf("not a SSH auth by private key (not supplied)")
 	}

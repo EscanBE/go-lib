@@ -4,6 +4,10 @@ import "fmt"
 
 // GetUniqueElements returns a distinct slide based on input
 func GetUniqueElements[T comparable](slice ...T) []T {
+	if len(slice) < 2 {
+		return slice
+	}
+
 	tracker := make(map[T]bool)
 	for _, ele := range slice {
 		tracker[ele] = true
