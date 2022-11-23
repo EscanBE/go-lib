@@ -3,8 +3,10 @@ package context
 import (
 	"fmt"
 	"github.com/EscanBE/go-lib/telegram/bot"
+	"github.com/EscanBE/go-lib/utils"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"math/rand"
+	"strings"
 	"testing"
 )
 
@@ -193,4 +195,80 @@ func TestTelegramUpdateContext_NewResponseMessage(t *testing.T) {
 			return
 		}
 	})
+}
+
+func setUpTestCmdUpdate(command string) TelegramUpdateContext {
+	cid := rand.Int63()
+	uid := rand.Int63()
+	isCommand := len(command) > 0
+	return TelegramUpdateContext{
+		update: tgbotapi.Update{
+			Message: &tgbotapi.Message{
+				From: &tgbotapi.User{
+					ID: uid,
+				},
+				Chat: &tgbotapi.Chat{
+					ID: cid,
+				},
+				Text: utils.ConditionalString(isCommand, fmt.Sprintf("/%s", command), "hello world"),
+				Entities: []tgbotapi.MessageEntity{
+					{
+						Type:   utils.ConditionalString(isCommand, "bot_command", "not_command"),
+						Offset: 0,
+						Length: func() int {
+							spaceIdx := strings.Index(command, " ")
+							if spaceIdx < 0 {
+								return len(command) + 1
+							}
+							return len(command[:strings.Index(command, " ")]) + 1
+						}(),
+					},
+				},
+			},
+		},
+	}
+}
+
+func TestTelegramUpdateContext_GetCommand(t *testing.T) {
+	tests := []string{"help", "version", "me", ""}
+	for _, cmd := range tests {
+		t.Run(cmd, func(t *testing.T) {
+			ctx := setUpTestCmdUpdate(cmd)
+			if got := ctx.GetCommand(); got != cmd {
+				t.Errorf("GetCommand() = %v, want %v", got, cmd)
+			}
+		})
+	}
+}
+
+func TestTelegramUpdateContext_GetCommandArg(t *testing.T) {
+	tests := []struct {
+		input string
+		want  string
+	}{
+		{
+			input: "help me",
+			want:  "me",
+		},
+		{
+			input: "help",
+			want:  "",
+		},
+		{
+			input: "set 1",
+			want:  "1",
+		},
+		{
+			input: "",
+			want:  "",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.input, func(t *testing.T) {
+			ctx := setUpTestCmdUpdate(tt.input)
+			if got := ctx.GetCommandArg(); got != tt.want {
+				t.Errorf("GetCommandArg() = %v, want %v", got, tt.want)
+			}
+		})
+	}
 }

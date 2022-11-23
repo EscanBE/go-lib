@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/EscanBE/go-lib/logging"
 	"github.com/EscanBE/go-lib/test_utils"
+	"math/rand"
 	"strings"
 	"testing"
 )
@@ -52,19 +53,18 @@ func TestExecuteExitFunction(t *testing.T) {
 	appExitFunction = nil
 
 	defer test_utils.DeferWantPanic(t)
-	
+
 	ExecuteExitFunction("3", "4", "5")
 }
 
 func TestTryRecoverAndExecuteExitFunctionIfRecovered(t *testing.T) {
 	testTryRecoverAndExecuteExitFunctionIfRecovered(t, logging.NewDefaultLogger())
-}
-
-func TestTryRecoverAndExecuteExitFunctionIfRecovered_WithoutLogger(t *testing.T) {
 	testTryRecoverAndExecuteExitFunctionIfRecovered(t, nil)
 }
 
 func testTryRecoverAndExecuteExitFunctionIfRecovered(t *testing.T, logger logging.Logger) {
+	panicMsg := fmt.Sprintf("fake panic %d", rand.Int())
+
 	num := 0
 
 	// multiple defer, last in first out
@@ -78,7 +78,7 @@ func testTryRecoverAndExecuteExitFunctionIfRecovered(t *testing.T, logger loggin
 			return
 		}
 
-		if !strings.Contains(fmt.Sprintf("%v", r), "fake") {
+		if !strings.Contains(fmt.Sprintf("%v", r), panicMsg) {
 			t.Errorf("wrong error")
 			return
 		}
@@ -97,5 +97,5 @@ func testTryRecoverAndExecuteExitFunctionIfRecovered(t *testing.T, logger loggin
 		num += 1
 	})
 
-	panic("fake")
+	panic(panicMsg)
 }
