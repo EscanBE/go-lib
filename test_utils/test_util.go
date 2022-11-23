@@ -1,6 +1,8 @@
 package test_utils
 
 import (
+	"fmt"
+	"math/rand"
 	"strings"
 	"testing"
 )
@@ -46,4 +48,19 @@ func WantErrorContainsStringIfNonEmptyOtherWiseNoError(t *testing.T, err error, 
 		}
 	}
 	return true
+}
+
+var letters = []byte("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
+
+var RadStr = RandomText
+
+func RandomText(length int) string {
+	if length < 1 || length > 1000 {
+		panic(fmt.Errorf("invalid length %d", length))
+	}
+	bytes := make([]byte, length)
+	for i := 0; i < length; i++ {
+		bytes[i] = letters[rand.Int()%len(letters)]
+	}
+	return string(bytes)
 }

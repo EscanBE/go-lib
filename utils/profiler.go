@@ -63,8 +63,7 @@ func (p *Profiler) Finalize() *Profiler {
 	return p
 }
 
-// FinalizeWithCheckErr stops the execution time counter for the current instance and seals it (can not finalize again).
-// If the param err is exists, set the p.err value to <true>
+// FinalizeWithCheckErr stops the execution time counter for the current instance and seals it, later if provide err, the <err> state can be changed
 func (p *Profiler) FinalizeWithCheckErr(err error) {
 	if p == nil {
 		return
@@ -79,8 +78,7 @@ func (p *Profiler) FinalizeWithCheckErr(err error) {
 	}
 }
 
-// FinalizeWithErr stops the execution time counter for the current instance and seals it (can not finalize again).
-// If the param err is exists, set the p.err value to <true>, otherwise panic, when calling this method, the param <err> must be exists
+// FinalizeWithErr stops the execution time counter for the current instance and seals it, later if provide err, the <err> state can be changed
 func (p *Profiler) FinalizeWithErr(err error) error {
 	if p == nil {
 		return err
