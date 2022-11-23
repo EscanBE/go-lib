@@ -240,3 +240,43 @@ func TestProfiler_FinalizeWithErr(t *testing.T) {
 	defer test_utils.DeferWantPanic(t)
 	profiler.FinalizeWithErr(nil)
 }
+
+func randomGenerateChildren(parent *Profiler, noErr bool) (generatedAnyErr bool) {
+	if parent == nil {
+		return false
+	}
+	numberOfChild := rand.Int() % 3
+	if numberOfChild < 1 {
+		return false
+	}
+	var anyErr bool
+	for i := 0; i < numberOfChild; i++ {
+		child := parent.NewChild("")
+		if !noErr && rand.Int()%100 < 20 {
+			child.FinalizeWithErr(fmt.Errorf("err"))
+			anyErr = true
+		}
+
+		if randomGenerateChildren(child, noErr) {
+			anyErr = true
+		}
+	}
+	return anyErr
+}
+
+func TestProfiler_Print(t *testing.T) {
+	assert.False(t, NewMasterProfiler("", "", false).Print())
+
+	const maxTest = 10
+	for i := 1; i <= maxTest; i++ {
+		profiler := NewMasterProfiler("", "", true)
+		assert.NotNil(t, profiler)
+		noErrShouldBeGenerated := i == 1 // make sure at least one profiler has no err
+		anyErr := randomGenerateChildren(profiler, noErrShouldBeGenerated)
+		if i == maxTest {
+			profiler.FinalizeWithErr(fmt.Errorf("err")) // make sure at least one profiler has err
+		}
+		got := profiler.Print()
+		assert.True(t, anyErr == got, "got %v, want %v", got, anyErr)
+	}
+}

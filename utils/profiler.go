@@ -94,8 +94,8 @@ func (p *Profiler) FinalizeWithErr(err error) error {
 	return err
 }
 
-// Print does system print out the record data
-func (p *Profiler) Print() bool {
+// Print does system print out the record data, returns if itself or any child has err
+func (p *Profiler) Print() (anyError bool) {
 	if p == nil {
 		return false
 	}
