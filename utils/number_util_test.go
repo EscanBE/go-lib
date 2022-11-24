@@ -3,7 +3,7 @@ package utils
 import (
 	"fmt"
 	"github.com/EscanBE/go-lib/test_utils"
-	"github.com/stretchr/testify/assert"
+	require "github.com/stretchr/testify/require"
 	"math/rand"
 	"strings"
 	"testing"
@@ -90,9 +90,7 @@ func TestIsValidHexNumber(t *testing.T) {
 				break
 			}
 			expect := num >= 0 && !strings.HasPrefix(hex, "x")
-			if !assert.Equal(t, expect, IsValidHexNumber(hex)) {
-				break
-			}
+			require.Equal(t, expect, IsValidHexNumber(hex))
 		}
 	})
 
@@ -155,7 +153,7 @@ func TestIsValidHexNumber(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.input, func(t *testing.T) {
-			assert.Equalf(t, tt.want, IsValidHexNumber(tt.input), "IsValidHexNumber(%v)", tt.input)
+			require.Equalf(t, tt.want, IsValidHexNumber(tt.input), "IsValidHexNumber(%v)", tt.input)
 		})
 	}
 }
@@ -178,12 +176,8 @@ func TestConvertFromHexNumberStringToDecimalString(t *testing.T) {
 				break
 			}
 			got, err := convertFromHexNumberStringToDecimalString(hex, true)
-			if !assert.Nil(t, err) {
-				break
-			}
-			if !assert.Equalf(t, fmt.Sprintf("%d", num), got, "input [%s], result [%s]", hex, got) {
-				break
-			}
+			require.Nil(t, err)
+			require.Equalf(t, fmt.Sprintf("%d", num), got, "input [%s], result [%s]", hex, got)
 		}
 	})
 
@@ -251,7 +245,7 @@ func TestConvertFromHexNumberStringToDecimalString(t *testing.T) {
 			if err != nil && !test_utils.WantErrorContainsStringIfNonEmptyOtherWiseNoError(t, err, tt.wantErrMsg) {
 				return
 			}
-			assert.Equalf(t, tt.want, got, "got %s, want %s", got, tt.want)
+			require.Equalf(t, tt.want, got, "got %s, want %s", got, tt.want)
 		})
 	}
 }
