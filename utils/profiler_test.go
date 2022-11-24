@@ -192,10 +192,14 @@ func TestProfiler_FinalizeWithCheckErr(t *testing.T) {
 }
 
 func TestProfiler_FinalizeWithErr(t *testing.T) {
+	var err error
 	nilProfiler1 := (*Profiler)(nil)
-	nilProfiler1.FinalizeWithErr(fmt.Errorf("err")) // shouldn't panic
+	tmpErr := fmt.Errorf("err")
+	err = nilProfiler1.FinalizeWithErr(tmpErr) // shouldn't panic
+	require.Equal(t, tmpErr, err)
 	nilProfiler2 := (*Profiler)(nil)
-	nilProfiler2.FinalizeWithErr(nil) // shouldn't panic either
+	err = nilProfiler2.FinalizeWithErr(nil) // shouldn't panic either
+	require.Nil(t, err)
 
 	desc := test_utils.RadStr(6)
 	level := rand.Int()
@@ -212,7 +216,7 @@ func TestProfiler_FinalizeWithErr(t *testing.T) {
 
 	// 1st finalize
 	time.Sleep(10 * time.Millisecond)
-	profiler.FinalizeWithErr(fmt.Errorf("err1")) // shouldn't panic
+	_ = profiler.FinalizeWithErr(fmt.Errorf("err1")) // shouldn't panic
 
 	// expect fields doesn't change
 	require.Equal(t, desc, profiler.desc)
@@ -229,7 +233,7 @@ func TestProfiler_FinalizeWithErr(t *testing.T) {
 
 	// 2nd finalize
 	time.Sleep(10 * time.Millisecond)
-	profiler.FinalizeWithErr(fmt.Errorf("err2"))
+	_ = profiler.FinalizeWithErr(fmt.Errorf("err2"))
 
 	// expect fields not changed after 2nd finalize
 	require.True(t, profiler.finalized)
@@ -238,7 +242,7 @@ func TestProfiler_FinalizeWithErr(t *testing.T) {
 
 	// 3rd finalize with non-err
 	defer test_utils.DeferWantPanic(t)
-	profiler.FinalizeWithErr(nil)
+	_ = profiler.FinalizeWithErr(nil)
 }
 
 func randomGenerateChildren(parent *Profiler, noErr bool) (generatedAnyErr bool) {
@@ -253,7 +257,7 @@ func randomGenerateChildren(parent *Profiler, noErr bool) (generatedAnyErr bool)
 	for i := 0; i < numberOfChild; i++ {
 		child := parent.NewChild("")
 		if !noErr && rand.Int()%100 < 20 {
-			child.FinalizeWithErr(fmt.Errorf("err"))
+			_ = child.FinalizeWithErr(fmt.Errorf("err"))
 			anyErr = true
 		}
 
@@ -274,7 +278,7 @@ func TestProfiler_Print(t *testing.T) {
 		noErrShouldBeGenerated := i == 1 // make sure at least one profiler has no err
 		anyErr := randomGenerateChildren(profiler, noErrShouldBeGenerated)
 		if i == maxTest {
-			profiler.FinalizeWithErr(fmt.Errorf("err")) // make sure at least one profiler has err
+			_ = profiler.FinalizeWithErr(fmt.Errorf("err")) // make sure at least one profiler has error
 			anyErr = true
 		}
 		got := profiler.Print()

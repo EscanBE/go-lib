@@ -6,6 +6,7 @@ import (
 )
 
 func TestIsValidIP(t *testing.T) {
+	//goland:noinspection SpellCheckingInspection
 	tests := []struct {
 		ip   string
 		want bool

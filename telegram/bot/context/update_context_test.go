@@ -13,8 +13,8 @@ import (
 func TestNewTelegramUpdateContext(t *testing.T) {
 	t.Run("init with correct input", func(t *testing.T) {
 		update := tgbotapi.Update{}
-		bot := bot.TelegramBot{}
-		got := NewTelegramUpdateContext(update, bot)
+		tBot := bot.TelegramBot{}
+		got := NewTelegramUpdateContext(update, tBot)
 		if got == nil {
 			t.Errorf("expect success")
 			return
@@ -29,8 +29,8 @@ func TestNewTelegramUpdateContext(t *testing.T) {
 func TestTelegramUpdateContext_WithUsername(t *testing.T) {
 	t.Run("with correct username", func(t *testing.T) {
 		update := tgbotapi.Update{}
-		bot := bot.TelegramBot{}
-		ctx := NewTelegramUpdateContext(update, bot)
+		tBot := bot.TelegramBot{}
+		ctx := NewTelegramUpdateContext(update, tBot)
 		if ctx.username != "" {
 			t.Errorf("wrong default username")
 			return
@@ -46,21 +46,21 @@ func TestTelegramUpdateContext_WithUsername(t *testing.T) {
 func TestTelegramUpdateContext_GetBot(t *testing.T) {
 	t.Run("expect no error", func(t *testing.T) {
 		update := tgbotapi.Update{}
-		bot := bot.TelegramBot{}
-		ctx := NewTelegramUpdateContext(update, bot)
+		tBot := bot.TelegramBot{}
+		ctx := NewTelegramUpdateContext(update, tBot)
 		if ctx == nil {
 			t.Errorf("expect init")
 			return
 		}
-		bot = ctx.GetBot()
+		tBot = ctx.GetBot()
 	})
 }
 
 func TestTelegramUpdateContext_ExposeUpdate(t *testing.T) {
 	t.Run("expect no error", func(t *testing.T) {
 		update := tgbotapi.Update{}
-		bot := bot.TelegramBot{}
-		ctx := NewTelegramUpdateContext(update, bot)
+		tBot := bot.TelegramBot{}
+		ctx := NewTelegramUpdateContext(update, tBot)
 		if ctx == nil {
 			t.Errorf("expect init")
 			return

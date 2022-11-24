@@ -82,7 +82,7 @@ func TestGetCommandInfo(t *testing.T) {
 			wantArgDesc:         "<ad2>",
 		},
 		{
-			command:   "nonexists",
+			command:   "not-exists",
 			wantPanic: true,
 		},
 	}

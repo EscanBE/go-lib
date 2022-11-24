@@ -3,6 +3,7 @@ package utils
 import "testing"
 
 func TestExtractHostAndPort(t *testing.T) {
+	//goland:noinspection HttpUrlsUsage
 	tests := []struct {
 		url     string
 		want    string
@@ -75,6 +76,7 @@ func TestExtractHostAndPort(t *testing.T) {
 }
 
 func TestExtractHostAndPortOrKeep(t *testing.T) {
+	//goland:noinspection HttpUrlsUsage
 	tests := []struct {
 		url  string
 		want string

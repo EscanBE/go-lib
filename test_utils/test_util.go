@@ -50,6 +50,7 @@ func WantErrorContainsStringIfNonEmptyOtherWiseNoError(t *testing.T, err error, 
 	return true
 }
 
+//goland:noinspection SpellCheckingInspection
 var letters = []byte("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
 
 var RadStr = RandomText

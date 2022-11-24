@@ -3,7 +3,7 @@ package utils
 import (
 	"fmt"
 	"github.com/EscanBE/go-lib/test_utils"
-	require "github.com/stretchr/testify/require"
+	"github.com/stretchr/testify/require"
 	"math/rand"
 	"strings"
 	"testing"
