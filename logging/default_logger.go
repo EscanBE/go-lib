@@ -23,7 +23,7 @@ func NewDefaultLogger() Logger {
 	result := &defaultLogger{
 		Logger: log.Logger,
 	}
-	result.SetLogLevel(logtypes.LOG_LEVEL_DEFAULT)
+	_ = result.SetLogLevel(logtypes.LOG_LEVEL_DEFAULT)
 	return result
 }
 

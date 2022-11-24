@@ -3,7 +3,7 @@ package utils
 import (
 	"fmt"
 	"github.com/EscanBE/go-lib/test_utils"
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"math"
 	"math/rand"
 	"testing"
@@ -11,20 +11,20 @@ import (
 )
 
 func TestNewMasterProfiler(t *testing.T) {
-	assert.Nil(t, NewMasterProfiler("", "", false))
+	require.Nil(t, NewMasterProfiler("", "", false))
 
 	desc := fmt.Sprintf("desc %d", rand.Int())
 	constDesc := fmt.Sprintf("constDesc %d", rand.Int())
 	profiler := NewMasterProfiler(desc, constDesc, true)
 	now := time.Now().UnixMilli()
-	assert.NotNil(t, profiler)
-	assert.Equal(t, constDesc, profiler.constDesc)
-	assert.True(t, math.Abs(float64(now-profiler.start)) < 10)
-	assert.Zero(t, profiler.duration)
-	assert.False(t, profiler.finalized)
-	assert.Zero(t, profiler.level)
-	assert.False(t, profiler.err)
-	assert.Nil(t, profiler.children)
+	require.NotNil(t, profiler)
+	require.Equal(t, constDesc, profiler.constDesc)
+	require.True(t, math.Abs(float64(now-profiler.start)) < 10)
+	require.Zero(t, profiler.duration)
+	require.False(t, profiler.finalized)
+	require.Zero(t, profiler.level)
+	require.False(t, profiler.err)
+	require.Nil(t, profiler.children)
 }
 
 func Test_newProfiler(t *testing.T) {
@@ -32,18 +32,18 @@ func Test_newProfiler(t *testing.T) {
 	level := rand.Int()
 	profiler := newProfiler(desc, level)
 	now := time.Now().UnixMilli()
-	assert.NotNil(t, profiler)
-	assert.Empty(t, profiler.constDesc)
-	assert.True(t, math.Abs(float64(now-profiler.start)) < 10)
-	assert.Zero(t, profiler.duration)
-	assert.False(t, profiler.finalized)
-	assert.Equal(t, level, profiler.level)
-	assert.False(t, profiler.err)
-	assert.Nil(t, profiler.children)
+	require.NotNil(t, profiler)
+	require.Empty(t, profiler.constDesc)
+	require.True(t, math.Abs(float64(now-profiler.start)) < 10)
+	require.Zero(t, profiler.duration)
+	require.False(t, profiler.finalized)
+	require.Equal(t, level, profiler.level)
+	require.False(t, profiler.err)
+	require.Nil(t, profiler.children)
 }
 
 func TestProfiler_NewChild(t *testing.T) {
-	assert.Nil(t, (*Profiler)(nil).NewChild(""), "nil should creates nil")
+	require.Nil(t, (*Profiler)(nil).NewChild(""), "nil should creates nil")
 	parentDesc := fmt.Sprintf("desc %d", rand.Int())
 	parentLevel := rand.Int()
 	parentProfiler := newProfiler(parentDesc, parentLevel)
@@ -53,64 +53,64 @@ func TestProfiler_NewChild(t *testing.T) {
 	profiler := parentProfiler.NewChild(childDesc)
 	now := time.Now().UnixMilli()
 
-	assert.NotNil(t, profiler)
-	assert.Equal(t, profiler, parentProfiler.children[0], "must be appended as parent children")
-	assert.Equal(t, parentProfiler.constDesc, profiler.constDesc, "constDesc should be coped from parent")
-	assert.True(t, math.Abs(float64(now-profiler.start)) < 10)
-	assert.Zero(t, profiler.duration)
-	assert.False(t, profiler.finalized)
-	assert.Equal(t, parentLevel+1, profiler.level)
-	assert.False(t, profiler.err)
-	assert.Nil(t, profiler.children)
+	require.NotNil(t, profiler)
+	require.Equal(t, profiler, parentProfiler.children[0], "must be appended as parent children")
+	require.Equal(t, parentProfiler.constDesc, profiler.constDesc, "constDesc should be coped from parent")
+	require.True(t, math.Abs(float64(now-profiler.start)) < 10)
+	require.Zero(t, profiler.duration)
+	require.False(t, profiler.finalized)
+	require.Equal(t, parentLevel+1, profiler.level)
+	require.False(t, profiler.err)
+	require.Nil(t, profiler.children)
 
 	_ = parentProfiler.NewChild("")
 	_ = profiler.NewChild("")
-	assert.Equal(t, 2, len(parentProfiler.children))
-	assert.Equal(t, 1, len(profiler.children))
+	require.Equal(t, 2, len(parentProfiler.children))
+	require.Equal(t, 1, len(profiler.children))
 }
 
 func TestProfiler_Finalize(t *testing.T) {
 	nilProfiler := (*Profiler)(nil)
-	assert.Nil(t, nilProfiler.Finalize())
+	require.Nil(t, nilProfiler.Finalize())
 
 	desc := test_utils.RadStr(6)
 	level := rand.Int()
 	profiler := newProfiler(desc, level)
 
 	// make sure before finalize
-	assert.NotZero(t, profiler.start)
-	assert.Zero(t, profiler.duration)
-	assert.False(t, profiler.err)
-	assert.False(t, profiler.finalized)
+	require.NotZero(t, profiler.start)
+	require.Zero(t, profiler.duration)
+	require.False(t, profiler.err)
+	require.False(t, profiler.finalized)
 
 	// backup data
 	start := profiler.start
 
 	// 1st finalize
 	time.Sleep(10 * time.Millisecond)
-	assert.Equal(t, profiler, profiler.Finalize())
+	require.Equal(t, profiler, profiler.Finalize())
 
 	// expect fields doesn't change
-	assert.Equal(t, desc, profiler.desc)
-	assert.Equal(t, level, profiler.level)
-	assert.Equal(t, start, profiler.start)
-	assert.False(t, profiler.err, "by calling Finalize(), err should not be changed")
+	require.Equal(t, desc, profiler.desc)
+	require.Equal(t, level, profiler.level)
+	require.Equal(t, start, profiler.start)
+	require.False(t, profiler.err, "by calling Finalize(), err should not be changed")
 
 	// expect fields changed
-	assert.True(t, profiler.finalized)
-	assert.NotZero(t, profiler.duration)
+	require.True(t, profiler.finalized)
+	require.NotZero(t, profiler.duration)
 
 	// backup data
 	duration := profiler.duration
 
 	// 2nd finalize
 	time.Sleep(10 * time.Millisecond)
-	assert.Equal(t, profiler, profiler.Finalize())
+	require.Equal(t, profiler, profiler.Finalize())
 
 	// expect fields not changed after 2nd finalize
-	assert.True(t, profiler.finalized)
-	assert.Equal(t, duration, profiler.duration)
-	assert.False(t, profiler.err)
+	require.True(t, profiler.finalized)
+	require.Equal(t, duration, profiler.duration)
+	require.False(t, profiler.err)
 }
 
 func TestProfiler_FinalizeWithCheckErr(t *testing.T) {
@@ -137,10 +137,10 @@ func TestProfiler_FinalizeWithCheckErr(t *testing.T) {
 			profiler := newProfiler(desc, level)
 
 			// make sure before finalize
-			assert.NotZero(t, profiler.start)
-			assert.Zero(t, profiler.duration)
-			assert.False(t, profiler.err)
-			assert.False(t, profiler.finalized)
+			require.NotZero(t, profiler.start)
+			require.Zero(t, profiler.duration)
+			require.False(t, profiler.err)
+			require.False(t, profiler.finalized)
 
 			// backup data
 			start := profiler.start
@@ -150,13 +150,13 @@ func TestProfiler_FinalizeWithCheckErr(t *testing.T) {
 			profiler.FinalizeWithCheckErr(tt.err)
 
 			// expect fields doesn't change
-			assert.Equal(t, desc, profiler.desc)
-			assert.Equal(t, level, profiler.level)
-			assert.Equal(t, start, profiler.start)
+			require.Equal(t, desc, profiler.desc)
+			require.Equal(t, level, profiler.level)
+			require.Equal(t, start, profiler.start)
 
 			// expect fields changed
-			assert.True(t, profiler.finalized)
-			assert.NotZero(t, profiler.duration)
+			require.True(t, profiler.finalized)
+			require.NotZero(t, profiler.duration)
 			if (tt.err != nil) != profiler.err {
 				t.Errorf("err %v, want %v", tt.err != nil, profiler.err)
 			}
@@ -170,8 +170,8 @@ func TestProfiler_FinalizeWithCheckErr(t *testing.T) {
 			profiler.FinalizeWithCheckErr(tt.err)
 
 			// expect fields not changed after 2nd finalize
-			assert.True(t, profiler.finalized)
-			assert.Equal(t, duration, profiler.duration)
+			require.True(t, profiler.finalized)
+			require.Equal(t, duration, profiler.duration)
 			if err != profiler.err {
 				t.Errorf("err %v, want %v", err, profiler.err)
 			}
@@ -186,59 +186,63 @@ func TestProfiler_FinalizeWithCheckErr(t *testing.T) {
 			profiler.FinalizeWithCheckErr(tt.err)
 			// if previous finalize not err, then override with err => err
 			// if previous finalize with err, then ignore any other update state to err
-			assert.True(t, profiler.err, "must be true")
+			require.True(t, profiler.err, "must be true")
 		})
 	}
 }
 
 func TestProfiler_FinalizeWithErr(t *testing.T) {
+	var err error
 	nilProfiler1 := (*Profiler)(nil)
-	nilProfiler1.FinalizeWithErr(fmt.Errorf("err")) // shouldn't panic
+	tmpErr := fmt.Errorf("err")
+	err = nilProfiler1.FinalizeWithErr(tmpErr) // shouldn't panic
+	require.Equal(t, tmpErr, err)
 	nilProfiler2 := (*Profiler)(nil)
-	nilProfiler2.FinalizeWithErr(nil) // shouldn't panic either
+	err = nilProfiler2.FinalizeWithErr(nil) // shouldn't panic either
+	require.Nil(t, err)
 
 	desc := test_utils.RadStr(6)
 	level := rand.Int()
 	profiler := newProfiler(desc, level)
 
 	// make sure before finalize
-	assert.NotZero(t, profiler.start)
-	assert.Zero(t, profiler.duration)
-	assert.False(t, profiler.err)
-	assert.False(t, profiler.finalized)
+	require.NotZero(t, profiler.start)
+	require.Zero(t, profiler.duration)
+	require.False(t, profiler.err)
+	require.False(t, profiler.finalized)
 
 	// backup data
 	start := profiler.start
 
 	// 1st finalize
 	time.Sleep(10 * time.Millisecond)
-	profiler.FinalizeWithErr(fmt.Errorf("err1")) // shouldn't panic
+	_ = profiler.FinalizeWithErr(fmt.Errorf("err1")) // shouldn't panic
 
 	// expect fields doesn't change
-	assert.Equal(t, desc, profiler.desc)
-	assert.Equal(t, level, profiler.level)
-	assert.Equal(t, start, profiler.start)
+	require.Equal(t, desc, profiler.desc)
+	require.Equal(t, level, profiler.level)
+	require.Equal(t, start, profiler.start)
 
 	// expect fields changed
-	assert.True(t, profiler.finalized)
-	assert.NotZero(t, profiler.duration)
-	assert.True(t, profiler.err)
+	require.True(t, profiler.finalized)
+	require.NotZero(t, profiler.duration)
+	require.True(t, profiler.err)
 
 	// backup data
 	duration := profiler.duration
 
 	// 2nd finalize
 	time.Sleep(10 * time.Millisecond)
-	profiler.FinalizeWithErr(fmt.Errorf("err2"))
+	_ = profiler.FinalizeWithErr(fmt.Errorf("err2"))
 
 	// expect fields not changed after 2nd finalize
-	assert.True(t, profiler.finalized)
-	assert.Equal(t, duration, profiler.duration)
-	assert.True(t, profiler.err)
+	require.True(t, profiler.finalized)
+	require.Equal(t, duration, profiler.duration)
+	require.True(t, profiler.err)
 
 	// 3rd finalize with non-err
 	defer test_utils.DeferWantPanic(t)
-	profiler.FinalizeWithErr(nil)
+	_ = profiler.FinalizeWithErr(nil)
 }
 
 func randomGenerateChildren(parent *Profiler, noErr bool) (generatedAnyErr bool) {
@@ -253,7 +257,7 @@ func randomGenerateChildren(parent *Profiler, noErr bool) (generatedAnyErr bool)
 	for i := 0; i < numberOfChild; i++ {
 		child := parent.NewChild("")
 		if !noErr && rand.Int()%100 < 20 {
-			child.FinalizeWithErr(fmt.Errorf("err"))
+			_ = child.FinalizeWithErr(fmt.Errorf("err"))
 			anyErr = true
 		}
 
@@ -265,18 +269,19 @@ func randomGenerateChildren(parent *Profiler, noErr bool) (generatedAnyErr bool)
 }
 
 func TestProfiler_Print(t *testing.T) {
-	assert.False(t, NewMasterProfiler("", "", false).Print())
+	require.False(t, NewMasterProfiler("", "", false).Print())
 
 	const maxTest = 10
 	for i := 1; i <= maxTest; i++ {
 		profiler := NewMasterProfiler("", "", true)
-		assert.NotNil(t, profiler)
+		require.NotNil(t, profiler)
 		noErrShouldBeGenerated := i == 1 // make sure at least one profiler has no err
 		anyErr := randomGenerateChildren(profiler, noErrShouldBeGenerated)
 		if i == maxTest {
-			profiler.FinalizeWithErr(fmt.Errorf("err")) // make sure at least one profiler has err
+			_ = profiler.FinalizeWithErr(fmt.Errorf("err")) // make sure at least one profiler has error
+			anyErr = true
 		}
 		got := profiler.Print()
-		assert.True(t, anyErr == got, "got %v, want %v", got, anyErr)
+		require.Truef(t, anyErr == got, "got %v (i=%d), want %v", got, i, anyErr)
 	}
 }

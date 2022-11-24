@@ -7,6 +7,7 @@ import (
 	"testing"
 )
 
+//goland:noinspection SpellCheckingInspection
 var testPk = "-----BEGIN OPENSSH PRIVATE KEY-----\nb3BlbnNzaC1rZXktdjEAAAAACmFlczI1Ni1jdHIAAAAGYmNyeXB0AAAAGAAAABBx/sIaS3\nJoJwbYJF6I53+3AAAAEAAAAAEAAAAzAAAAC3NzaC1lZDI1NTE5AAAAILzUyN5j8T+DTm2U\nplS/v/s8DHA7zcYUDIbOJgnCZRl2AAAAkIMPd6Ry7fFv+syyOfqq3wVmjm2JigPCanbAoi\nU3yCbGPLqrs9QLMrv0Ax08b9PijvtsE/+fM9LoCUAGRd+6/+GtPlgo0Xjw4HROO1c1RbjG\nIYipxuuj6lquTD8kOObFtT1zHG1a4jlq7gyDYYDsgfg79QnP8GX0WYF0bqtynU2YLtXYT2\n9DdR/tdsOQoysZAQ==\n-----END OPENSSH PRIVATE KEY-----"
 var passphraseTestPk = "123456789"
 var generateRemoteServer = func(privateKey, passphrase []byte) *types.SshRemote {

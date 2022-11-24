@@ -78,6 +78,7 @@ func executeRemoteCommandViaSSH(remoteCommand string, remoteServer *types.SshRem
 	}
 
 	// Authentication
+	//goland:noinspection SpellCheckingInspection
 	config := &ssh.ClientConfig{
 		User: remoteServer.Username,
 		// https://github.com/golang/go/issues/19767

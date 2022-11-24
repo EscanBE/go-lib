@@ -17,6 +17,7 @@ type TelegramBot struct {
 }
 
 // NewBot returns a new instance of TelegramBot, provide some utilities
+//goland:noinspection GoUnusedExportedFunction
 func NewBot(telegramBotToken string) (*TelegramBot, error) {
 	bot, err := tgbotapi.NewBotAPI(telegramBotToken)
 	if err != nil {

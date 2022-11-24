@@ -1,8 +1,11 @@
 package utils
 
 import (
+	"fmt"
 	"github.com/EscanBE/go-lib/test_utils"
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+	"math/rand"
+	"strings"
 	"testing"
 )
 
@@ -71,6 +74,26 @@ func TestConditionalInt(t *testing.T) {
 }
 
 func TestIsValidHexNumber(t *testing.T) {
+	t.Run("random", func(t *testing.T) {
+		for i := 0; i < 100; i++ {
+			num := rand.Int63()
+			var hex string
+			switch rand.Int() % 3 {
+			case 0:
+				hex = fmt.Sprintf("%x", num)
+				break
+			case 1:
+				hex = fmt.Sprintf("x%x", num)
+				break
+			default:
+				hex = fmt.Sprintf("0x%x", num)
+				break
+			}
+			expect := num >= 0 && !strings.HasPrefix(hex, "x")
+			require.Equal(t, expect, IsValidHexNumber(hex))
+		}
+	})
+
 	tests := []struct {
 		input string
 		want  bool
@@ -130,12 +153,34 @@ func TestIsValidHexNumber(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.input, func(t *testing.T) {
-			assert.Equalf(t, tt.want, IsValidHexNumber(tt.input), "IsValidHexNumber(%v)", tt.input)
+			require.Equalf(t, tt.want, IsValidHexNumber(tt.input), "IsValidHexNumber(%v)", tt.input)
 		})
 	}
 }
 
 func TestConvertFromHexNumberStringToDecimalString(t *testing.T) {
+	t.Run("random", func(t *testing.T) {
+		for i := 0; i < 100; i++ {
+			num := rand.Int63()
+			if num < 0 {
+				i--
+				continue
+			}
+			var hex string
+			switch rand.Int() % 2 {
+			case 0:
+				hex = fmt.Sprintf("%x", num)
+				break
+			default:
+				hex = fmt.Sprintf("0x%x", num)
+				break
+			}
+			got, err := convertFromHexNumberStringToDecimalString(hex, true)
+			require.Nil(t, err)
+			require.Equalf(t, fmt.Sprintf("%d", num), got, "input [%s], result [%s]", hex, got)
+		}
+	})
+
 	tests := []struct {
 		input            string
 		want             string
@@ -200,7 +245,7 @@ func TestConvertFromHexNumberStringToDecimalString(t *testing.T) {
 			if err != nil && !test_utils.WantErrorContainsStringIfNonEmptyOtherWiseNoError(t, err, tt.wantErrMsg) {
 				return
 			}
-			assert.Equalf(t, tt.want, got, "got %s, want %s", got, tt.want)
+			require.Equalf(t, tt.want, got, "got %s, want %s", got, tt.want)
 		})
 	}
 }

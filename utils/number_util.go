@@ -24,6 +24,7 @@ func ConditionalInt(expression bool, whenTrue, whenFalse int) int {
 	}
 }
 
+//goland:noinspection SpellCheckingInspection
 const validHexCharacters = "0123456789abcdefABCDEF"
 
 // IsValidHexNumber returns true if input is a valid hex

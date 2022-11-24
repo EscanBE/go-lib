@@ -50,7 +50,7 @@ func BooleanAsSqlNullableBoolean(b bool) sql.NullBool {
 	}
 }
 
-// BigIntAsNullableSqlInt64 do transform a big.Int into a int64 object that nullable in the underlying database, if the pointer is NIL, it will be NULL
+// BigIntAsNullableSqlInt64 do transform a big.Int into an int64 object that nullable in the underlying database, if the pointer is NIL, it will be NULL
 func BigIntAsNullableSqlInt64(s *big.Int) sql.NullInt64 {
 	if s == nil {
 		return sql.NullInt64{}

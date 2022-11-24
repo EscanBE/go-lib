@@ -6,6 +6,7 @@ import (
 )
 
 // TrapExitSignals is a list of os signals should be listening for
+//goland:noinspection GoUnusedGlobalVariable
 var TrapExitSignals = []os.Signal{
 	syscall.SIGTERM, // Terminate by another process
 	syscall.SIGHUP,  // Terminal goes away
