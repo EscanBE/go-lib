@@ -4,8 +4,9 @@ import "fmt"
 
 // LoggingConfig will be used to apply logging config, it also provides utilities
 type LoggingConfig struct {
-	Level  string `mapstructure:"level"`
-	Format string `mapstructure:"format"`
+	Level          string `mapstructure:"level"`
+	Format         string `mapstructure:"format"`
+	EnableProfiler bool   `mapstructure:"profiler"`
 }
 
 // Validate performs validation on the LoggingConfig instance
