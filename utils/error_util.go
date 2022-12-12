@@ -14,6 +14,7 @@ func ExitIfErr(err error, msg string) {
 		return
 	}
 	fmt.Printf("Exit with error: %s\n", msg)
+	fmt.Println(err)
 	osExit(1)
 }
 
