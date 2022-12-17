@@ -3,6 +3,7 @@ module github.com/EscanBE/go-lib
 go 1.18
 
 require (
+	github.com/ethereum/go-ethereum v1.10.26
 	github.com/go-telegram-bot-api/telegram-bot-api/v5 v5.5.1
 	github.com/lib/pq v1.10.6
 	github.com/orcaman/concurrent-map/v2 v2.0.0
@@ -15,7 +16,9 @@ require (
 )
 
 require (
+	github.com/btcsuite/btcd/btcec/v2 v2.2.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.0.1 // indirect
 	github.com/mattn/go-colorable v0.1.12 // indirect
 	github.com/mattn/go-isatty v0.0.14 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
