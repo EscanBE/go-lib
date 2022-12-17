@@ -58,11 +58,13 @@ func TestExecuteExitFunction(t *testing.T) {
 }
 
 func TestTryRecoverAndExecuteExitFunctionIfRecovered(t *testing.T) {
-	testTryRecoverAndExecuteExitFunctionIfRecovered(t, logging.NewDefaultLogger())
-	testTryRecoverAndExecuteExitFunctionIfRecovered(t, nil)
+	testTryRecoverAndExecuteExitFunctionIfRecovered1(t, logging.NewDefaultLogger())
+	testTryRecoverAndExecuteExitFunctionIfRecovered1(t, nil)
+	testTryRecoverAndExecuteExitFunctionIfRecovered2(t, logging.NewDefaultLogger())
+	testTryRecoverAndExecuteExitFunctionIfRecovered2(t, nil)
 }
 
-func testTryRecoverAndExecuteExitFunctionIfRecovered(t *testing.T, logger logging.Logger) {
+func testTryRecoverAndExecuteExitFunctionIfRecovered1(t *testing.T, logger logging.Logger) {
 	panicMsg := fmt.Sprintf("fake panic %d", rand.Int())
 
 	num := 0
@@ -96,6 +98,40 @@ func testTryRecoverAndExecuteExitFunctionIfRecovered(t *testing.T, logger loggin
 	RegisterExitFunction(func(params ...any) {
 		num += 1
 	})
+
+	panic(panicMsg)
+}
+
+func testTryRecoverAndExecuteExitFunctionIfRecovered2(t *testing.T, logger logging.Logger) {
+	panicMsg := fmt.Sprintf("fake panic %d", rand.Int())
+
+	num := 0
+
+	// multiple defer, last in first out
+
+	// so final defer to be run should be declared first
+	defer func() {
+		r := recover()
+
+		if r == nil {
+			t.Errorf("expect panic (re-throw)")
+			return
+		}
+
+		if !strings.Contains(fmt.Sprintf("%v", r), panicMsg) {
+			t.Errorf("wrong error")
+			return
+		}
+
+		const want = 0
+		got := num
+		if got != want {
+			t.Errorf("TryRecoverAndExecuteExitFunctionIfRecovered() executed wrongly. Got %d but want %d", got, want)
+		}
+	}()
+	defer TryRecoverAndExecuteExitFunctionIfRecovered(logger)
+
+	appExitFunction = nil
 
 	panic(panicMsg)
 }
