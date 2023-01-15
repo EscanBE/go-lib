@@ -1,7 +1,6 @@
 package types
 
 import (
-	"math"
 	"testing"
 	"time"
 )
@@ -9,10 +8,7 @@ import (
 func TestCancellationTokenSource_GetCancellationToken(t *testing.T) {
 	expiry := time.Now().Add(-1 * time.Second)
 
-	cs := &CancellationTokenSource{
-		expiry:  &expiry,
-		counter: math.MaxInt64,
-	}
+	cs := NewCancellationTokenSourceWithExpiry(&expiry)
 
 	ct := cs.GetCancellationToken()
 
@@ -28,10 +24,7 @@ func TestCancellationTokenSource_GetCancellationToken(t *testing.T) {
 func TestCancellationTokenSource_IsExpired(t *testing.T) {
 	expiry := time.Now().Add(-1 * time.Second)
 
-	cs := &CancellationTokenSource{
-		expiry:  &expiry,
-		counter: math.MaxInt64,
-	}
+	cs := NewCancellationTokenSourceWithExpiry(&expiry)
 
 	if !cs.IsExpired() {
 		t.Errorf("IsExpired() returns wrong expiration state (1)")
@@ -48,10 +41,15 @@ func TestCancellationTokenSource_IsExpired(t *testing.T) {
 func TestCancellationTokenSource_RequestCancellation(t *testing.T) {
 	expiry := time.Now().Add(time.Hour)
 
-	cs := &CancellationTokenSource{
-		expiry:  &expiry,
-		counter: math.MaxInt64,
+	cs := NewCancellationTokenSourceWithExpiry(&expiry)
+
+	cs.RequestCancellation()
+
+	if !cs.IsExpired() {
+		t.Errorf("RequestCancellation() does not working as expected")
 	}
+
+	cs = NewCancellationTokenSourceWithExpiryAndCounter(&expiry, 999999)
 
 	cs.RequestCancellation()
 
@@ -63,10 +61,7 @@ func TestCancellationTokenSource_RequestCancellation(t *testing.T) {
 func TestCancellationToken_IsExpired(t *testing.T) {
 	expiry := time.Now().Add(-1 * time.Second)
 
-	cs := &CancellationTokenSource{
-		expiry:  &expiry,
-		counter: math.MaxInt64,
-	}
+	cs := NewCancellationTokenSourceWithExpiry(&expiry)
 
 	ct := cs.GetCancellationToken()
 
@@ -106,6 +101,27 @@ func TestNewCancellationTokenSourceWithExpiry(t *testing.T) {
 	}
 }
 
+func TestNewCancellationTokenSourceWithExpiryAndCounter(t *testing.T) {
+	expiry := time.Now().Add(-1 * time.Second)
+	cs := NewCancellationTokenSourceWithExpiryAndCounter(&expiry, 999999)
+
+	if !cs.IsExpired() {
+		t.Errorf("NewCancellationTokenSourceWithExpiry() returns wrong expiration state")
+	}
+
+	expiry = time.Now().Add(time.Hour)
+	cs = NewCancellationTokenSourceWithExpiryAndCounter(&expiry, 0)
+
+	if !cs.IsExpired() {
+		t.Errorf("NewCancellationTokenSourceWithExpiry() returns wrong expiration state")
+	}
+
+	cs = NewCancellationTokenSourceWithExpiryAndCounter(&expiry, 999999)
+	if cs.IsExpired() {
+		t.Errorf("NewCancellationTokenSourceWithExpiry() returns wrong expiration state")
+	}
+}
+
 func TestNewCancellationTokenSourceWithTimeoutDuration(t *testing.T) {
 	dur := 300 * time.Millisecond
 	cs := NewCancellationTokenSourceWithTimeoutDuration(dur)
@@ -117,6 +133,24 @@ func TestNewCancellationTokenSourceWithTimeoutDuration(t *testing.T) {
 	time.Sleep(dur)
 	time.Sleep(50 * time.Millisecond)
 
+	if !cs.IsExpired() {
+		t.Errorf("NewCancellationTokenSourceWithTimeoutDuration() returns wrong expiration state")
+	}
+}
+
+func TestNewCancellationTokenSourceWithTimeoutDurationAndCounter(t *testing.T) {
+	cs := NewCancellationTokenSourceWithTimeoutDurationAndCounter(time.Hour, 2)
+
+	if cs.IsExpired() {
+		t.Errorf("NewCancellationTokenSourceWithTimeoutDuration() returns wrong expiration state")
+	}
+
+	cs.ReduceCounter()
+	if cs.IsExpired() {
+		t.Errorf("NewCancellationTokenSourceWithTimeoutDuration() returns wrong expiration state")
+	}
+
+	cs.ReduceCounter()
 	if !cs.IsExpired() {
 		t.Errorf("NewCancellationTokenSourceWithTimeoutDuration() returns wrong expiration state")
 	}
@@ -136,6 +170,24 @@ func TestNewCancellationTokenSourceWithTimeoutMilliseconds(t *testing.T) {
 	}
 }
 
+func TestNewCancellationTokenSourceWithTimeoutMillisecondsAndCounter(t *testing.T) {
+	cs := NewCancellationTokenSourceWithTimeoutMillisecondsAndCounter(9999999, 2)
+
+	if cs.IsExpired() {
+		t.Errorf("NewCancellationTokenSourceWithTimeoutMilliseconds() returns wrong expiration state")
+	}
+
+	cs.ReduceCounter()
+	if cs.IsExpired() {
+		t.Errorf("NewCancellationTokenSourceWithTimeoutMilliseconds() returns wrong expiration state")
+	}
+
+	cs.ReduceCounter()
+	if !cs.IsExpired() {
+		t.Errorf("NewCancellationTokenSourceWithTimeoutMilliseconds() returns wrong expiration state")
+	}
+}
+
 func TestNewCancellationTokenSourceWithTimeoutSeconds(t *testing.T) {
 	cs := NewCancellationTokenSourceWithTimeoutSeconds(1)
 
@@ -145,6 +197,24 @@ func TestNewCancellationTokenSourceWithTimeoutSeconds(t *testing.T) {
 
 	time.Sleep(2 * time.Second)
 
+	if !cs.IsExpired() {
+		t.Errorf("NewCancellationTokenSourceWithTimeoutSeconds() returns wrong expiration state")
+	}
+}
+
+func TestNewCancellationTokenSourceWithTimeoutSecondsAndCounter(t *testing.T) {
+	cs := NewCancellationTokenSourceWithTimeoutSecondsAndCounter(999999, 2)
+
+	if cs.IsExpired() {
+		t.Errorf("NewCancellationTokenSourceWithTimeoutSeconds() returns wrong expiration state")
+	}
+
+	cs.ReduceCounter()
+	if cs.IsExpired() {
+		t.Errorf("NewCancellationTokenSourceWithTimeoutSeconds() returns wrong expiration state")
+	}
+
+	cs.ReduceCounter()
 	if !cs.IsExpired() {
 		t.Errorf("NewCancellationTokenSourceWithTimeoutSeconds() returns wrong expiration state")
 	}
