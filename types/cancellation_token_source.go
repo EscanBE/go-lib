@@ -103,3 +103,8 @@ type CancellationToken struct {
 func (ct CancellationToken) IsExpired() bool {
 	return ct.cancellationTokenSource.IsExpired()
 }
+
+// ReduceCounter subtracts counter on CancellationTokenSource by 1 if remaining value is > 0
+func (ct *CancellationToken) ReduceCounter() {
+	ct.cancellationTokenSource.ReduceCounter()
+}
