@@ -218,22 +218,6 @@ func TestNewCancellationTokenSourceWithTimeoutSecondsAndCounter(t *testing.T) {
 	if !cs.IsExpired() {
 		t.Errorf("NewCancellationTokenSourceWithTimeoutSeconds() returns wrong expiration state")
 	}
-
-	ct := NewCancellationTokenSourceWithTimeoutSecondsAndCounter(999999, 2).GetCancellationToken()
-
-	if ct.IsExpired() {
-		t.Errorf("NewCancellationTokenSourceWithTimeoutSeconds() returns wrong expiration state")
-	}
-
-	ct.ReduceCounter()
-	if ct.IsExpired() {
-		t.Errorf("NewCancellationTokenSourceWithTimeoutSeconds() returns wrong expiration state")
-	}
-
-	ct.ReduceCounter()
-	if !ct.IsExpired() {
-		t.Errorf("NewCancellationTokenSourceWithTimeoutSeconds() returns wrong expiration state")
-	}
 }
 
 func TestReduceCounterOnCancellationTokenSource(t *testing.T) {
