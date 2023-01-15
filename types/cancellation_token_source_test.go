@@ -236,7 +236,7 @@ func TestNewCancellationTokenSourceWithTimeoutSecondsAndCounter(t *testing.T) {
 	}
 }
 
-func TestReduceCounter(t *testing.T) {
+func TestReduceCounterOnCancellationTokenSource(t *testing.T) {
 	cs := NewCancellationTokenSourceWithTimeoutSecondsAndCounter(999999, 2)
 	cs.ReduceCounter()
 	if cs.counter != 1 {
@@ -257,6 +257,31 @@ func TestReduceCounter(t *testing.T) {
 
 	cs.ReduceCounter()
 	if cs.counter != -1 {
+		t.Errorf("ReduceCounter() didn't change counter state correctly")
+	}
+}
+
+func TestReduceCounterOnCancellationToken(t *testing.T) {
+	ct := NewCancellationTokenSourceWithTimeoutSecondsAndCounter(999999, 2).GetCancellationToken()
+	ct.ReduceCounter()
+	if ct.cancellationTokenSource.counter != 1 {
+		t.Errorf("ReduceCounter() didn't change counter state correctly")
+	}
+
+	ct.ReduceCounter()
+	if ct.cancellationTokenSource.counter != 0 {
+		t.Errorf("ReduceCounter() didn't change counter state correctly")
+	}
+
+	ct.ReduceCounter()
+	if ct.cancellationTokenSource.counter != 0 {
+		t.Errorf("ReduceCounter() didn't change counter state correctly")
+	}
+
+	ct.cancellationTokenSource.counter = -1
+
+	ct.ReduceCounter()
+	if ct.cancellationTokenSource.counter != -1 {
 		t.Errorf("ReduceCounter() didn't change counter state correctly")
 	}
 }
