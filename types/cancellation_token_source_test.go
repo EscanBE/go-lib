@@ -1,6 +1,7 @@
 package types
 
 import (
+	"math"
 	"testing"
 	"time"
 )
@@ -9,7 +10,8 @@ func TestCancellationTokenSource_GetCancellationToken(t *testing.T) {
 	expiry := time.Now().Add(-1 * time.Second)
 
 	cs := &CancellationTokenSource{
-		expiry: &expiry,
+		expiry:  &expiry,
+		counter: math.MaxInt64,
 	}
 
 	ct := cs.GetCancellationToken()
@@ -27,7 +29,8 @@ func TestCancellationTokenSource_IsExpired(t *testing.T) {
 	expiry := time.Now().Add(-1 * time.Second)
 
 	cs := &CancellationTokenSource{
-		expiry: &expiry,
+		expiry:  &expiry,
+		counter: math.MaxInt64,
 	}
 
 	if !cs.IsExpired() {
@@ -46,7 +49,8 @@ func TestCancellationTokenSource_RequestCancellation(t *testing.T) {
 	expiry := time.Now().Add(time.Hour)
 
 	cs := &CancellationTokenSource{
-		expiry: &expiry,
+		expiry:  &expiry,
+		counter: math.MaxInt64,
 	}
 
 	cs.RequestCancellation()
@@ -60,7 +64,8 @@ func TestCancellationToken_IsExpired(t *testing.T) {
 	expiry := time.Now().Add(-1 * time.Second)
 
 	cs := &CancellationTokenSource{
-		expiry: &expiry,
+		expiry:  &expiry,
+		counter: math.MaxInt64,
 	}
 
 	ct := cs.GetCancellationToken()
