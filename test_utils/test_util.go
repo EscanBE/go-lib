@@ -65,3 +65,18 @@ func RandomText(length int) string {
 	}
 	return string(bytes)
 }
+
+func AssertSlicesEquals[T1 any, T2 any](expected []T1, got []T2, fCompare func(l T1, r T2) bool, t *testing.T) {
+	if len(expected) != len(got) {
+		t.Errorf("slices are not equals, expected len %d, got %d", len(expected), len(got))
+		return
+	}
+	if len(expected) > 0 {
+		for i, e := range expected {
+			if !fCompare(e, got[i]) {
+				t.Errorf("slices are not equals, expected[%d] = %v, got %v", i, e, got[i])
+				return
+			}
+		}
+	}
+}
