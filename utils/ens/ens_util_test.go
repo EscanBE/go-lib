@@ -1,4 +1,4 @@
-package utils
+package ens
 
 import (
 	"strings"

@@ -1,4 +1,4 @@
-package utils
+package abi
 
 import (
 	"encoding/hex"
