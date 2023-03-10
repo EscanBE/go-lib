@@ -29,16 +29,6 @@ func (e IEnumerable[T]) Len() int {
 	return len(e.data)
 }
 
-func (e IEnumerable[T]) Select(convert func(t T) any) IEnumerable[any] {
-	converted := make([]any, len(e.data))
-	for i, t := range e.data {
-		converted[i] = convert(t)
-	}
-	return IEnumerable[any]{
-		data: converted,
-	}
-}
-
 func (e IEnumerable[T]) ForEach(action func(t T)) {
 	if len(e.data) > 0 {
 		for _, t := range e.data {
