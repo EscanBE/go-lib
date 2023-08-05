@@ -194,10 +194,25 @@ func TestGetMapValues(t *testing.T) {
 					1: 1,
 					2: 2,
 					3: 3,
-					4: 1,
+					4: 5,
+					6: 7,
 				},
 			},
-			want: []int{3, 2, 1, 1}, // unexpected order
+			want: []int{1, 3, 7, 5, 2}, // unexpected order
+		},
+		{
+			name: "duplicated elements",
+			args: args{
+				myMap: map[int]int{
+					1: 1,
+					2: 2,
+					3: 3,
+					4: 1,
+					5: 2,
+					6: 3,
+				},
+			},
+			want: []int{3, 2, 1, 1, 2, 3}, // unexpected order
 		},
 	}
 	for _, tt := range tests {
