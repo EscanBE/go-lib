@@ -27,6 +27,17 @@ func GetKeysOf[K, V comparable](myMap map[K]V, expectedValue V) []K {
 	return keys
 }
 
+// GetMapValues returns slide of all values of the map
+func GetMapValues[K, V comparable](myMap map[K]V) []V {
+	values := make([]V, len(myMap))
+	cnt := 0
+	for _, value := range myMap {
+		values[cnt] = value
+		cnt++
+	}
+	return values
+}
+
 // SoftCloneMap returns a cloned map, the value will be assigned to the new map
 func SoftCloneMap[K comparable, V any](myMap map[K]V) map[K]V {
 	result := make(map[K]V)
