@@ -155,6 +155,63 @@ func TestGetKeysOfTrue(t *testing.T) {
 	}
 }
 
+func TestGetMapValues(t *testing.T) {
+	type args struct {
+		myMap map[int]int
+	}
+	tests := []struct {
+		name string
+		args args
+		want []int
+	}{
+		{
+			name: "empty",
+			args: args{
+				myMap: make(map[int]int),
+			},
+			want: []int{},
+		},
+		{
+			name: "nil input",
+			args: args{
+				myMap: nil,
+			},
+			want: []int{},
+		},
+		{
+			name: "single element",
+			args: args{
+				myMap: map[int]int{
+					1: 1,
+				},
+			},
+			want: []int{1},
+		},
+		{
+			name: "multiple elements",
+			args: args{
+				myMap: map[int]int{
+					1: 1,
+					2: 2,
+					3: 3,
+					4: 1,
+				},
+			},
+			want: []int{3, 2, 1, 1}, // unexpected order
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := GetMapValues(tt.args.myMap)
+			sort.Ints(got)
+			sort.Ints(tt.want)
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("GetMapValues() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
 func TestSoftCloneMap(t *testing.T) {
 	var arr []byte
 	v := &arr
