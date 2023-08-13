@@ -28,7 +28,7 @@ func GetKeysOf[K, V comparable](myMap map[K]V, expectedValue V) []K {
 }
 
 // GetMapValues returns slide of all values of the map
-func GetMapValues[K, V comparable](myMap map[K]V) []V {
+func GetMapValues[K comparable, V any](myMap map[K]V) []V {
 	values := make([]V, len(myMap))
 	cnt := 0
 	for _, value := range myMap {
