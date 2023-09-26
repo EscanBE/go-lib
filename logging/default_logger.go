@@ -4,6 +4,7 @@ import (
 	"fmt"
 	logtypes "github.com/EscanBE/go-lib/logging/types"
 	"os"
+	"time"
 
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -20,6 +21,9 @@ type defaultLogger struct {
 
 // NewDefaultLogger builds a new defaultLogger instance
 func NewDefaultLogger() Logger {
+	zerolog.TimestampFunc = func() time.Time {
+		return time.Now().UTC()
+	}
 	result := &defaultLogger{
 		Logger: log.Logger,
 	}
