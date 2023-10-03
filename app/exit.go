@@ -3,6 +3,7 @@ package app
 import (
 	"fmt"
 	"github.com/EscanBE/go-lib/logging"
+	"github.com/EscanBE/go-lib/utils"
 )
 
 // AppExitFunction is an alias of function which receives params
@@ -36,20 +37,20 @@ func TryRecoverAndExecuteExitFunctionIfRecovered(logger logging.Logger, exitFunc
 			if logger != nil {
 				logger.Error("Panic caught", "error", err)
 			} else {
-				fmt.Printf("Panic caught, err: %v\n", err)
+				utils.PrintfStdErr("Panic caught, err: %v\n", err)
 			}
 			panic(err)
 		} else {
 			if logger != nil {
 				logger.Error("Recovered from panic, executing exit function")
 			} else {
-				fmt.Println("Recovered from panic, executing exit function")
+				utils.PrintfStdErr("Recovered from panic, executing exit function")
 			}
 			ExecuteExitFunction(exitFuncParams...)
 			if logger != nil {
 				logger.Error("Executed exit function, going to panic using recovered error")
 			} else {
-				fmt.Println("Executed exit function, going to panic using recovered error")
+				utils.PrintfStdErr("Executed exit function, going to panic using recovered error")
 			}
 			panic(err)
 		}
