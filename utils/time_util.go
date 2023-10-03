@@ -26,6 +26,16 @@ func DiffMs(previous int64) int64 {
 	return NowMs() - previous
 }
 
+// IsTimeNear returns true when t1 and t2, are the same time (maximum diff is offset), regardless timezone.
+// Eg: 03:00:00 UTC+0000 is equals to 10:00:00 UTC+0700
+func IsTimeNear(t1, t2 time.Time, offsetDuration time.Duration) bool {
+	t1 = t1.UTC()
+	t2 = t2.UTC()
+
+	diff := t1.Sub(t2)
+	return offsetDuration.Abs() >= diff.Abs()
+}
+
 // GetLocationFromUtcTimezone returns location corresponding to specified UTC-based timezone
 func GetLocationFromUtcTimezone(utcTimezone int) *time.Location {
 	ensureUtcTimezone(utcTimezone)

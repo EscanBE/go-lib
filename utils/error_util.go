@@ -13,8 +13,7 @@ func ExitIfErr(err error, msg string) {
 	if err == nil {
 		return
 	}
-	fmt.Printf("Exit with error: %s\n", msg)
-	fmt.Println(err)
+	PrintlnStdErr("Exit with error:", msg, "\n", err)
 	osExit(1)
 }
 
@@ -23,7 +22,7 @@ func PanicIfErr(err error, msg string) {
 	if err == nil {
 		return
 	}
-	fmt.Printf("Exit with error: %s\n", msg)
+	PrintlnStdErr("Exit with error:", msg)
 	panic(err)
 }
 
@@ -33,4 +32,19 @@ func NilOrWrapIfError(err error, msg string) error {
 		return nil
 	}
 	return errors.Wrap(err, msg)
+}
+
+// PrintlnStdErr does println to StdErr
+func PrintlnStdErr(a ...any) {
+	fmt.Fprintln(os.Stderr, a...)
+}
+
+// PrintfStdErr does printf to StdErr
+func PrintfStdErr(format string, a ...any) {
+	fmt.Fprintf(os.Stderr, format, a...)
+}
+
+// PrintStdErr does print to StdErr
+func PrintStdErr(a ...any) {
+	fmt.Fprint(os.Stderr, a...)
 }

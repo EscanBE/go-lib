@@ -123,3 +123,56 @@ func TestGetUtcName(t *testing.T) {
 		})
 	}
 }
+
+func TestIsTimeNear(t *testing.T) {
+	nowUTC := time.Now().UTC()
+	nowUS := nowUTC.In(GetLocationFromUtcTimezone(-7))
+
+	makeTimeUTC := func(shiftSeconds int) time.Time {
+		return nowUTC.Add(time.Duration(shiftSeconds) * time.Second)
+	}
+
+	tests := []struct {
+		shiftSeconds   int
+		timeFrame      time.Time
+		offsetDuration time.Duration
+		want           bool
+	}{
+		{
+			shiftSeconds:   10,
+			offsetDuration: 10 * time.Second,
+			want:           true,
+		},
+		{
+			shiftSeconds:   9,
+			offsetDuration: 10 * time.Second,
+			want:           true,
+		},
+		{
+			shiftSeconds:   11,
+			offsetDuration: 10 * time.Second,
+			want:           false,
+		},
+	}
+	for i, tt := range tests {
+		timeFrameUTC := makeTimeUTC(tt.shiftSeconds)
+
+		t.Run(fmt.Sprintf("[%d] UTC %v vs %v", i, nowUTC, timeFrameUTC), func(t *testing.T) {
+			if got := IsTimeNear(nowUTC, timeFrameUTC, tt.offsetDuration); got != tt.want {
+				t.Errorf("IsMatchTimeFrame() = %v, want %v", got, tt.want)
+			}
+		})
+
+		t.Run(fmt.Sprintf("[%d] AnyZone %v vs %v", i, nowUS, timeFrameUTC), func(t *testing.T) {
+			if got := IsTimeNear(nowUS, timeFrameUTC, tt.offsetDuration); got != tt.want {
+				t.Errorf("IsMatchTimeFrame() = %v, want %v", got, tt.want)
+			}
+		})
+
+		t.Run(fmt.Sprintf("[%d] Change position", i), func(t *testing.T) {
+			if got := IsTimeNear(timeFrameUTC, nowUS, tt.offsetDuration); got != tt.want {
+				t.Errorf("IsMatchTimeFrame() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
